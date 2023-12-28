@@ -1,0 +1,19 @@
+# code: language=ansible
+---
+- name: Install repository dependency packages
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+# - name: Add apt signing key
+#   ansible.builtin.get_url:
+#     url: "{{ dns_apt_key_url }}"
+#     dest: "{{ dns_apt_key_dest }}"
+#     mode: "0644"
+# - name: Add dns repository
+#   ansible.builtin.apt_repository:
+#     filename: dns
+#     repo: deb [signed-by={{ dns_apt_key_dest }}] https://packages.repository.com/debian {{ ansible_facts.distribution_release }} main
+#     state: present

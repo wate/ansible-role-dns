@@ -1,0 +1,19 @@
+
+# Created by https://www.gitignore.io/api/ansible
+
+### Ansible ###
+# Ansible retry files
+*.retry
+
+### direnv ###
+.direnv
+.envrc
+
+### dotenv ###
+.env
+
+### Molecule ###
+.env.yml
+
+### VisualStudioCode ###
+/.vscode/
