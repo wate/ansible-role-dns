@@ -15,28 +15,18 @@
   ansible.builtin.include_vars:
     file: "{{ variable_file }}"
   when: variable_file | length > 0
-- name: Import repository task
-  ansible.builtin.import_tasks:
-    file: repository.yml
-  tags:
-    - role_dns_repository
-- name: Import dependency task
-  ansible.builtin.import_tasks:
-    file: dependency.yml
-  tags:
-    - role_dns_dependency
-- name: Import package task
-  ansible.builtin.import_tasks:
-    file: package.yml
-  tags:
-    - role_dns_package
-- name: Import setting task
-  ansible.builtin.import_tasks:
-    file: setting.yml
-  tags:
-    - role_dns_setting
-- name: Import service task
-  ansible.builtin.import_tasks:
-    file: service.yml
-  tags:
-    - role_dns_service
+# - name: Import dependency task
+#   ansible.builtin.import_tasks:
+#     file: dependency.yml
+#   tags:
+#     - role_dns_dependency
+# - name: Import package task
+#   ansible.builtin.import_tasks:
+#     file: package.yml
+#   tags:
+#     - role_dns_package
+# - name: Import setting task
+#   ansible.builtin.import_tasks:
+#     file: setting.yml
+#   tags:
+#     - role_dns_setting

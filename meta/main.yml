@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: dns
-  author: your name
+  author: yoshiaki tanaka
   description: your description
   license: Apache
   min_ansible_version: "2.14"
