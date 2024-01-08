@@ -8,9 +8,9 @@
 - name: SPF recode value
   ansible.builtin.import_tasks:
     file: recode/SPF.yml
-# - name: DKIM recode value
-#   ansible.builtin.import_tasks:
-#     file: recode/DKIM.yml
+- name: DKIM recode value
+  ansible.builtin.import_tasks:
+    file: recode/DKIM.yml
 - name: DMARC recode value
   ansible.builtin.import_tasks:
     file: recode/DMARC.yml

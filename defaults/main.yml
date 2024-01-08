@@ -44,4 +44,4 @@ dns_dmarc:
 ## ----------
 ## RTPレコードに設定するドメイン名
 ## -----------
-dns_rtp_domain: "{{ inventory_hostname }}"
+# dns_rtp_domain: "{{ inventory_hostname }}"

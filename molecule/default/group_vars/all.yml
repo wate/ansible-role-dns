@@ -1,1 +1,6 @@
 ---
+opendkim_domains:
+  - example.com
+
+dns_dkim_domain: example.com
+dns_rtp_domain: example.com

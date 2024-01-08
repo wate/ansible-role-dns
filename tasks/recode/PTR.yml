@@ -1,10 +1,13 @@
 ---
-- name: Set recode variables
-  ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ ansible_facts.default_ipv4.address }}.in-addr.arpa"
-      type: PTR
-      rdata: "{{ dns_rtp_domain }}"
-- name: Combine SPF recode value
-  ansible.builtin.set_fact:
-    dns_recodes: "{{ dns_recodes | combine({'PTR': dns_recode}) }}"
+- name: Check variable
+  when: dns_rtp_domain is defined
+  block:
+    - name: Set recode variables
+      ansible.builtin.set_fact:
+        dns_recode:
+          name: "{{ ansible_facts.default_ipv4.address }}.in-addr.arpa"
+          type: PTR
+          rdata: "{{ dns_rtp_domain }}"
+    - name: Combine SPF recode value
+      ansible.builtin.set_fact:
+        dns_recodes: "{{ dns_recodes | combine({'PTR': dns_recode}) }}"

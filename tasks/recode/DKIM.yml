@@ -1,10 +1,31 @@
 ---
-- name: Set recode variables
-  ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ opendkim_sector | default('*') }}._domainkey.{{ dns_dkim_domain }}"
-      type: TXT
-      rdata: "{{ lookup('ansible.builtin.template', 'DKIM.j2') | trim | replace('\n', '; ') }}"
-- name: Combine SPF recode value
-  ansible.builtin.set_fact:
-    dns_recodes: "{{ dns_recodes | combine({'DKIM': dns_recode}) }}"
+- name: Check opendkim role variable
+  when:
+    - opendkim_selector is defined
+  block:
+    - name: Read public key content
+      ansible.builtin.command:
+        cmd: cat {{ opendkim_key_dir }}/{{ dns_dkim_domain }}/{{ opendkim_selector }}.txt
+        removes: "{{ opendkim_key_dir }}/{{ dns_dkim_domain }}/{{ opendkim_selector }}.txt"
+      register: cat_result
+    - name: Generate DNS DKIM recode
+      when: cat_result.stdout is defined
+      block:
+        - name: Extraction DNS recode value
+          ansible.builtin.set_fact:
+            dns_dkim_reocode_value: "{{ cat_result.stdout.split('(')[1].split(')')[0] }}"
+        - name: Transform DNS recode value(replace whitespace)
+          ansible.builtin.set_fact:
+            dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | trim | regex_replace('\"\\s+\"', '') }}"
+        - name: Transform DNS recode value(Trim doble quote)
+          ansible.builtin.set_fact:
+            dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
+        - name: Set recode variables
+          ansible.builtin.set_fact:
+            dns_recode:
+              name: "{{ opendkim_selector }}._domainkey"
+              type: TXT
+              rdata: "{{ dns_dkim_reocode_value }}"
+        - name: Combine DKIM recode value
+          ansible.builtin.set_fact:
+            dns_recodes: "{{ dns_recodes | combine({'DKIM': dns_recode}) }}"
