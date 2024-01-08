@@ -1,0 +1,15 @@
+---
+- name: Gather IP Address
+  ansible.builtin.setup:
+    gather_subset:
+      - default_ipv4
+      - default_ipv6
+- name: Set recode variables
+  ansible.builtin.set_fact:
+    dns_recode:
+      name: "@"
+      type: TXT
+      rdata: "{{ lookup('ansible.builtin.template', 'SPF.j2') | replace('\n', ' ') }}"
+- name: Combine SPF recode value
+  ansible.builtin.set_fact:
+    dns_recodes: "{{ dns_recodes | combine({'SPF': dns_recode}) }}"

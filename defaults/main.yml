@@ -1,11 +1,11 @@
 ---
-## -----------------
-## インストールするパッケージ
-## -----------------
-dns_packages: []
-
-
-## -----------------
-## DNSレコードの情報
-## -----------------
 dns_recodes: []
+
+## ----------
+## SPF(Sender Policy Framework)レコードに追加する値
+## 参考URL：https://ja.wikipedia.org/wiki/Sender_Policy_Framework
+## -----------
+dns_spf_append_suffixs:
+  - ?all
+
+dns_dmarc_: ""
