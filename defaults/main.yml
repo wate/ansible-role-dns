@@ -6,19 +6,24 @@
 dns_recodes: []
 
 ## ----------
-## DKIMレコードを設定するドメイン
-## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
-## -----------
-dns_dkim_domain: "{{ inventory_hostname }}"
-
-## ----------
 ## SPF(Sender Policy Framework)レコードの設定値に追加する値
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
 ## -----------
 dns_spf:
-  all_qualifier: "?"
+  all_qualifier: "~"
+  # name: "@"
   # other_values:
   #   - include:example.com
+
+## ----------
+## DKIMレコードを設定するドメイン
+## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
+##
+## ※DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
+## (以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)
+## https://github.com/wate/ansible-role-opendkim
+## -----------
+dns_dkim_domain: "{{ inventory_hostname }}"
 
 ## ----------
 ## DMARCレコードに設定する値
@@ -44,4 +49,4 @@ dns_dmarc:
 ## ----------
 ## RTPレコードに設定するドメイン名
 ## -----------
-# dns_rtp_domain: "{{ inventory_hostname }}"
+dns_rtp_domain: null

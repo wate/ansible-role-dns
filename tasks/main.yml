@@ -4,7 +4,7 @@
   ansible.builtin.setup:
     gather_subset:
       - default_ipv4
-      - default_ipv6
+      # - default_ipv6
 - name: SPF recode value
   ansible.builtin.import_tasks:
     file: recode/SPF.yml

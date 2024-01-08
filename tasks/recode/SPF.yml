@@ -2,7 +2,7 @@
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:
-      name: "@"
+      name: "{{ dns_spf.name | default('@') }}"
       type: TXT
       rdata: "{{ lookup('ansible.builtin.template', 'SPF.j2') | trim | replace('\n', ' ') }}"
 - name: Combine SPF recode value
