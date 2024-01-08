@@ -1,3 +1,8 @@
 v=spf1
 ip4:{{ ansible_facts.default_ipv4.address }}
-{{ dns_spf_append_suffixs | join(' ') }}
+{% if dns_spf.other_values is defined -%}
+{% for spf_other_value in dns_spf.other_values %}
+{{ spf_other_value }}
+{% endfor %}
+{% endif %}
+{{ dns_spf.all_qualifier }}all

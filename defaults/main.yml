@@ -1,11 +1,47 @@
 ---
+## ----------
+## 収集したDNSレコードの内容
+## ※以下の変数に各レコードの情報が追加されていきます
+## ----------
 dns_recodes: []
 
 ## ----------
-## SPF(Sender Policy Framework)レコードに追加する値
-## 参考URL：https://ja.wikipedia.org/wiki/Sender_Policy_Framework
+## DKIMレコードを設定するドメイン
+## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
 ## -----------
-dns_spf_append_suffixs:
-  - ?all
+dns_dkim_domain: "{{ inventory_hostname }}"
 
-dns_dmarc_: ""
+## ----------
+## SPF(Sender Policy Framework)レコードの設定値に追加する値
+## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
+## -----------
+dns_spf:
+  all_qualifier: "?"
+  # other_values:
+  #   - include:example.com
+
+## ----------
+## DMARCレコードに設定する値
+## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
+## -----------
+dns_dmarc:
+  ## メール受信者に要望する認証失敗時の動作 (none, quarantine, reject)
+  ## none:何もしない / quarantine:隔離 / reject:受信拒否
+  p: none
+  ### ポリシーを適用するメールの割合 (0〜100, デフォルトは100)
+  # pct: 100
+  ## DKIM 認証識別子のアライメントモード
+  ## r:緩和モード/ s: 厳格モード
+  # aspf: r
+  ## r:緩和モード/ s: 厳格モード
+  # adkim: r
+  ## SPF 認証識別子のアライメントモード
+  ## 集約レポートの送り先
+  # rua: report@example.com
+  ## 失敗レポートの送り先
+  # ruf: report@example.com
+
+## ----------
+## RTPレコードに設定するドメイン名
+## -----------
+dns_rtp_domain: "{{ inventory_hostname }}"

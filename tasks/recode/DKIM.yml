@@ -1,12 +1,10 @@
 ---
-- name: Gather IP Address
-  ansible.builtin.setup:
-    gather_subset:
-      - default_ipv4
-      - default_ipv6
-- name: Set recode value
+- name: Set recode variables
   ansible.builtin.set_fact:
-    spf_recode: "{{ lookup('ansible.builtin.template', 'spf.j2') | replace('\n', ' ') }}"
+    dns_recode:
+      name: "{{ opendkim_sector | default('*') }}._domainkey.{{ dns_dkim_domain }}"
+      type: TXT
+      rdata: "{{ lookup('ansible.builtin.template', 'DKIM.j2') | trim | replace('\n', '; ') }}"
 - name: Combine SPF recode value
   ansible.builtin.set_fact:
-    dns_recode: "{{ dns_recode | combine({'SPF': spf_recode}) }}"
+    dns_recodes: "{{ dns_recodes | combine({'DKIM': dns_recode}) }}"

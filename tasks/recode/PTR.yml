@@ -1,15 +1,10 @@
 ---
-- name: Gather IP Address
-  ansible.builtin.setup:
-    gather_subset:
-      - default_ipv4
-      - default_ipv6
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:
       name: "{{ ansible_facts.default_ipv4.address }}.in-addr.arpa"
       type: PTR
-      rdata: "{{ inventory_hostname }}"
+      rdata: "{{ dns_rtp_domain }}"
 - name: Combine SPF recode value
   ansible.builtin.set_fact:
     dns_recodes: "{{ dns_recodes | combine({'PTR': dns_recode}) }}"

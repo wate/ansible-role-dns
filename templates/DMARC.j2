@@ -1,0 +1,17 @@
+v=DMARC1
+p={{ dns_dmarc.p }}
+{% if dns_dmarc.adkim is defined -%}
+adkim={{ dns_dmarc.adkim }}
+{% endif %}
+{% if dns_dmarc.aspf is defined -%}
+aspf={{ dns_dmarc.aspf }}
+{% endif %}
+{% if dns_dmarc.pct is defined -%}
+pct={{ dns_dmarc.pct}}
+{% endif %}
+{% if dns_dmarc.rua is defined -%}
+rua=mailto:{{ dns_dmarc.rua }}
+{% endif %}
+{% if dns_dmarc.ruf is defined -%}
+ruf=mailto:{{ dns_dmarc.ruf}}
+{% endif %}
