@@ -25,7 +25,7 @@ Role Variables
 SPF(Sender Policy Framework)レコードの設定値に追加する値  
 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
 
-### `dns_dkim_domain`
+### `dns_dkim_domains`
 
 DKIMレコードを設定するドメイン  
 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/  
@@ -37,10 +37,6 @@ https://github.com/wate/ansible-role-opendkim
 
 DMARCレコードに設定する値  
 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
-
-### `dns_rtp_domain`
-
-RTPレコードに設定するドメイン名
 
 Example Playbook
 --------------
