@@ -7,4 +7,4 @@
       rdata: "{{ lookup('ansible.builtin.template', 'SPF.j2') | trim | replace('\n', ' ') }}"
 - name: Combine SPF recode value
   ansible.builtin.set_fact:
-    dns_recodes: "{{ dns_recodes | combine({'SPF': dns_recode}) }}"
+    dns_domain_recodes: "{{ dns_domain_recodes | combine({'SPF': dns_recode}, recursive=true) }}"

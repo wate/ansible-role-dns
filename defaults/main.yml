@@ -23,7 +23,8 @@ dns_spf:
 ## (以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)
 ## https://github.com/wate/ansible-role-opendkim
 ## -----------
-dns_dkim_domain: "{{ inventory_hostname }}"
+dns_dkim_domains:
+  - "{{ inventory_hostname }}"
 
 ## ----------
 ## DMARCレコードに設定する値
@@ -45,8 +46,3 @@ dns_dmarc:
   # rua: report@example.com
   ## 失敗レポートの送り先
   # ruf: report@example.com
-
-## ----------
-## RTPレコードに設定するドメイン名
-## -----------
-dns_rtp_domain: null

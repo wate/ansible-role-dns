@@ -5,18 +5,13 @@
     gather_subset:
       - default_ipv4
       # - default_ipv6
-- name: SPF recode value
-  ansible.builtin.import_tasks:
-    file: recode/SPF.yml
-- name: DKIM recode value
-  ansible.builtin.import_tasks:
-    file: recode/DKIM.yml
-- name: DMARC recode value
-  ansible.builtin.import_tasks:
-    file: recode/DMARC.yml
-- name: PTR recode value
-  ansible.builtin.import_tasks:
-    file: recode/PTR.yml
-- name: Debug
+- name: 各ドメイン毎のDNS設定情報を取得
+  ansible.builtin.include_tasks:
+    file: gather_dns_recode.yml
+  loop: "{{ dns_dkim_domains }}"
+  loop_control:
+    loop_var: dns_domain
+    label: dns_domain
+- name: Display DNS recode setting info
   ansible.builtin.debug:
     var: dns_recodes

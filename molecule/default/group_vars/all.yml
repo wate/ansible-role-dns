@@ -1,5 +1,7 @@
 ---
 opendkim_domains:
   - example.com
+  - example.net
 
-dns_dkim_domain: example.com
+dns_dkim_domains: "{{ opendkim_domains}}"
+

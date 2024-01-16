@@ -5,8 +5,8 @@
   block:
     - name: Read public key content
       ansible.builtin.command:
-        cmd: cat {{ opendkim_key_dir }}/{{ dns_dkim_domain }}/{{ opendkim_selector }}.txt
-        removes: "{{ opendkim_key_dir }}/{{ dns_dkim_domain }}/{{ opendkim_selector }}.txt"
+        cmd: cat {{ opendkim_key_dir }}/{{ dns_domain }}/{{ opendkim_selector }}.txt
+        removes: "{{ opendkim_key_dir }}/{{ dns_domain }}/{{ opendkim_selector }}.txt"
       register: cat_result
     - name: Generate DNS DKIM recode
       when: cat_result.stdout is defined
@@ -28,4 +28,4 @@
               rdata: "{{ dns_dkim_reocode_value }}"
         - name: Combine DKIM recode value
           ansible.builtin.set_fact:
-            dns_recodes: "{{ dns_recodes | combine({'DKIM': dns_recode}) }}"
+            dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"
