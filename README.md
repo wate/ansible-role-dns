@@ -20,11 +20,6 @@ Role Variables
 収集したDNSレコードの内容  
 ※以下の変数に各レコードの情報が追加されていきます
 
-### `dns_spf`
-
-SPF(Sender Policy Framework)レコードの設定値に追加する値  
-参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
-
 ### `dns_dkim_domains`
 
 DKIMレコードを設定するドメイン  
@@ -32,6 +27,11 @@ DKIMレコードを設定するドメイン
 ※DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。  
 (以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)  
 https://github.com/wate/ansible-role-opendkim
+
+### `dns_spf`
+
+SPF(Sender Policy Framework)レコードの設定値に追加する値  
+参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
 
 ### `dns_dmarc`
 

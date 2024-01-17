@@ -27,7 +27,7 @@ dns_spf_default:
 ## ----------
 
 ## ----------
-## DMARCレコードに設定する値
+## DMARCレコードに設定する初期値
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
 ## -----------
 dns_dmarc_default:

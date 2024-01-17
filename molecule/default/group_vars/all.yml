@@ -6,7 +6,8 @@ opendkim_domains:
   - subdomain.example.net
 
 dns_domains:
-  "example.com": null
+  "example.com":
+    dmarc_sp: none
   "subdomain.example.com": null
   "subdomain.example.net":
     ipaddr: "123.123.123.123"

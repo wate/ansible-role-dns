@@ -4,19 +4,16 @@
     dns_domain: "{{ gather_dns_domain.key }}"
     dns_domain_setting: "{{ gather_dns_domain.value | default({}, true) }}"
     dns_domain_recodes: {}
-- name: Debug
-  ansible.builtin.debug:
-    var: dns_domain
 - name: SPF recode value
   ansible.builtin.import_tasks:
     file: recode/SPF.yml
 # - name: DKIM recode value
 #   ansible.builtin.import_tasks:
 #     file: recode/DKIM.yml
-# - name: DMARC recode value
-#   ansible.builtin.import_tasks:
-#     file: recode/DMARC.yml
-#   when: dns_domain == dns_domain | community.dns.get_registrable_domain
+- name: DMARC recode value
+  ansible.builtin.import_tasks:
+    file: recode/DMARC.yml
+  when: dns_domain == dns_domain | community.dns.get_registrable_domain
 - name: Combine DNS recode variable
   ansible.builtin.set_fact:
     dns_recodes: "{{ dns_recodes | combine({dns_domain: dns_domain_recodes}, recursive=true) }}"
