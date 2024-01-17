@@ -2,6 +2,12 @@
 opendkim_domains:
   - example.com
   - example.net
+  - subdomain.example.com
+  - subdomain.example.net
 
-dns_dkim_domains: "{{ opendkim_domains}}"
-
+dns_domains:
+  "example.com": null
+  "subdomain.example.com": null
+  "subdomain.example.net":
+    ipaddr: "123.123.123.123"
+    spf_all_qualifier: "~"

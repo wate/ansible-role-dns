@@ -1,5 +1,10 @@
 # code: language=ansible
 ---
+- name: Import dependency task
+  ansible.builtin.import_tasks:
+    file: dependency.yml
+  tags:
+    - role_dns_dependency
 - name: Gather IP Address
   ansible.builtin.setup:
     gather_subset:
@@ -8,10 +13,12 @@
 - name: 各ドメイン毎のDNS設定情報を取得
   ansible.builtin.include_tasks:
     file: gather_dns_recode.yml
-  loop: "{{ dns_dkim_domains }}"
+  loop: "{{ dns_domains | dict2items }}"
   loop_control:
-    loop_var: dns_domain
-    label: dns_domain
+    loop_var: gather_dns_domain
+    label: gather_dns_domain.key
 - name: Display DNS recode setting info
   ansible.builtin.debug:
     var: dns_recodes
+
+# python3-netaddr

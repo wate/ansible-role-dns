@@ -1,0 +1,5 @@
+---
+- name: Install dependency packages
+  ansible.builtin.apt:
+    name:
+      - python3-dnspython

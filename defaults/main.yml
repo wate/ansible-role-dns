@@ -1,47 +1,53 @@
 ---
 ## ----------
+## DNS情報を取得するドメイン
+## -----------
+dns_domains: {}
+
+## ----------
 ## 収集したDNSレコードの内容
 ## ※以下の変数に各レコードの情報が追加されていきます
 ## ----------
 dns_recodes: []
 
 ## ----------
-## SPF(Sender Policy Framework)レコードの設定値に追加する値
+## SPF(Sender Policy Framework)レコードに設定する初期値
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
 ## -----------
-dns_spf:
-  all_qualifier: "~"
-  # name: "@"
-  # other_values:
-  #   - include:example.com
+dns_spf_default:
+  other_values: []
+    # - include:example.com
+  all_qualifier: "?"
 
 ## ----------
-## DKIMレコードを設定するドメイン
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
-##
 ## ※DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
 ## (以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)
 ## https://github.com/wate/ansible-role-opendkim
-## -----------
-dns_dkim_domains:
-  - "{{ inventory_hostname }}"
+## ----------
 
 ## ----------
 ## DMARCレコードに設定する値
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
 ## -----------
-dns_dmarc:
+dns_dmarc_default:
   ## メール受信者に要望する認証失敗時の動作 (none, quarantine, reject)
   ## none:何もしない / quarantine:隔離 / reject:受信拒否
-  p: none
+  p: quarantine
   ### ポリシーを適用するメールの割合 (0〜100, デフォルトは100)
-  # pct: 100
+  pct: 100
+  ### サブドメインに対するポリシー (none, quarantine, reject)
+  # sp: quarantine
   ## DKIM 認証識別子のアライメントモード
   ## r:緩和モード/ s: 厳格モード
   # aspf: r
   ## r:緩和モード/ s: 厳格モード
   # adkim: r
-  ## SPF 認証識別子のアライメントモード
+  ## 失敗レポートのオプション (0, 1, d, s)
+  ## 0:全ての認証がpassで無かった場合に失敗レポートを生成する / 1:いずれかの認証がpassで無かった場合に失敗レポートを生成する
+  ## d:DKIMの署名検証が失敗した場合に失敗レポートを生成する / s:SPFの検証が失敗した場合に失敗レポートを生成する
+  # fo: d
+  ## SPF認証識別子のアライメントモード
   ## 集約レポートの送り先
   # rua: report@example.com
   ## 失敗レポートの送り先

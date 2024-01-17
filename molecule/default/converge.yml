@@ -18,7 +18,7 @@
         update_cache: true
       when: ansible_facts.pkg_mgr == 'dnf'
   roles:
-    - role: common
+    # - role: common
     - role: opendkim
   tasks:
     - name: Include role
