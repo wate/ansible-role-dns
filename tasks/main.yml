@@ -9,7 +9,17 @@
   ansible.builtin.setup:
     gather_subset:
       - default_ipv4
-      # - default_ipv6
+- name: Initialise dkim key table
+  ansible.builtin.set_fact:
+    dns_dkim_key_table_data: {}
+- name: Check opendkim role variable
+  when:
+    - opendkim_selector is defined
+    - opendkim_table_config_dir is defined
+  block:
+    - name: Set dns_dkim_key_table variable task
+      ansible.builtin.import_tasks:
+        file: parse_dkim_key_table.yml
 - name: 各ドメイン毎のDNS設定情報を取得
   ansible.builtin.include_tasks:
     file: gather_dns_recode.yml
