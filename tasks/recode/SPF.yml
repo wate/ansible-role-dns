@@ -2,7 +2,7 @@
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:
-      name: "{{ dns_domain | community.dns.remove_public_suffix }}"
+      name: "{{ dns_domain | community.dns.remove_registrable_domain }}"
       type: TXT
       rdata: "{{ lookup('ansible.builtin.template', 'SPF.j2') | trim | replace('\n', ' ') }}"
 - name: Combine SPF recode value
