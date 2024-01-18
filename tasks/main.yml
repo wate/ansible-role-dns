@@ -30,5 +30,3 @@
 - name: Display DNS recode setting info
   ansible.builtin.debug:
     var: dns_recodes
-
-# python3-netaddr
