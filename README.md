@@ -15,27 +15,23 @@ Role Variables
 
 設定方法の詳細については[defaults/main.yml](defaults/main.yml)のサンプルコードを参照してください。
 
+### `dns_domains`
+
+DNS情報を取得するドメイン
+
 ### `dns_recodes`
 
 収集したDNSレコードの内容  
 ※以下の変数に各レコードの情報が追加されていきます
 
-### `dns_dkim_domains`
+### `dns_spf_default`
 
-DKIMレコードを設定するドメイン  
-参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/  
-※DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。  
-(以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)  
-https://github.com/wate/ansible-role-opendkim
-
-### `dns_spf`
-
-SPF(Sender Policy Framework)レコードの設定値に追加する値  
+SPF(Sender Policy Framework)レコードに設定する初期値  
 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
 
-### `dns_dmarc`
+### `dns_dmarc_default`
 
-DMARCレコードに設定する値  
+DMARCレコードに設定する初期値  
 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
 
 Example Playbook
