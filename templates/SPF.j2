@@ -1,5 +1,8 @@
 v=spf1
-ip4:{{ dns_domain_setting.ipaddr | default(ansible_facts.default_ipv4.address) }}
+ip4:{{ dns_domain_setting.ipaddr.ipv4 | default(ansible_facts.default_ipv4.address) }}
+{% if dns_domain_setting.ipaddr.ip6 is defined or ansible_facts.default_ipv6.address is defined -%}
+1p6:{{ dns_domain_setting.ipaddr.ip6 | default(ansible_facts.default_ipv6.address) }}
+{% endif %}
 {% for spf_other_value in dns_domain_setting.other_values | default(dns_spf_default.other_values | default([])) -%}
 {{ spf_other_value }}
 {% endfor %}

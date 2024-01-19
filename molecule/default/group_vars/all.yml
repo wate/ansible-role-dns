@@ -10,5 +10,7 @@ dns_domains:
     dmarc_sp: none
   "subdomain.example.com": null
   "subdomain.example.net":
-    ipaddr: "123.123.123.123"
+    ipaddr:
+      ipv4: "123.123.123.123"
+      # ipv6: ""
     spf_all_qualifier: "~"
