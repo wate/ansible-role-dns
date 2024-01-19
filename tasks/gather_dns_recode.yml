@@ -13,6 +13,10 @@
     file: recode/DKIM.yml
 - name: DMARC recode value
   ansible.builtin.import_tasks:
+    file: recode/postmaster.yml
+  when: dns_domain_setting.postmaster is defined
+- name: DMARC recode value
+  ansible.builtin.import_tasks:
     file: recode/DMARC.yml
   when: dns_domain == dns_domain | community.dns.get_registrable_domain
 - name: Combine DNS recode variable

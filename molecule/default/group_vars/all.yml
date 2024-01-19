@@ -16,3 +16,5 @@ dns_domains:
     spf:
       all_qualifier: "?"
       # other_values: []
+    ## @see https://postmaster.google.com/
+    postmaster: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz

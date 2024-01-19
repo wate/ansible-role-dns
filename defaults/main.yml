@@ -3,6 +3,19 @@
 ## DNS情報を取得するドメイン
 ## -----------
 dns_domains: {}
+#   "example.com":
+#     dmarc:
+#       sp: none
+#   "subdomain.example.com": null
+#   "subdomain.example.net":
+#     ipaddr:
+#       ipv4: "123.123.123.123"
+#       # ipv6: "[::]1"
+#     spf:
+#       all_qualifier: "?"
+#       # other_values: []
+#     ## @see https://postmaster.google.com/
+#     postmaster: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
 
 ## ----------
 ## 収集したDNSレコードの内容
