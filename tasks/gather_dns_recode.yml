@@ -4,10 +4,22 @@
     dns_domain: "{{ gather_dns_domain.key }}"
     dns_domain_setting: "{{ gather_dns_domain.value | default({}, true) }}"
     dns_domain_recodes: {}
+- name: A recode value
+  ansible.builtin.import_tasks:
+    file: recode/A.yml
+  when:
+    - not dns_domain_setting.skip_a | default(false)
+    - (dns_domain_setting.ipaddr.ipv4 is defined or ansible_facts.default_ipv4.address is defined)
+- name: AAAA recode value
+  ansible.builtin.import_tasks:
+    file: recode/AAAA.yml
+  when:
+    - not dns_domain_setting.skip_aaaa | default(false)
+    - (dns_domain_setting.ipaddr.ipv6 is defined or ansible_facts.default_ipv6.address is defined)
 - name: SPF recode value
   ansible.builtin.import_tasks:
     file: recode/SPF.yml
-  when: not (dns_domain_setting.spf_skip | default(false))
+  when: not (dns_domain_setting.skip_spf | default(false))
 - name: DKIM recode value
   ansible.builtin.import_tasks:
     file: recode/DKIM.yml

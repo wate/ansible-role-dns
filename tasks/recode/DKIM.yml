@@ -22,7 +22,7 @@
         - name: Set recode variables
           ansible.builtin.set_fact:
             dns_recode:
-              name: "{{ dns_dkim_key_table_data[dns_domain][0] }}"
+              name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
               type: TXT
               rdata: "{{ dns_dkim_reocode_value }}"
         - name: Combine DKIM recode value

@@ -2,7 +2,7 @@
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:
-      name: "{{ dns_domain | community.dns.remove_registrable_domain }}"
+      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
       type: TXT
       rdata: "{{ dns_domain_setting.postmaster }};"
 - name: Combine DMARC recode value

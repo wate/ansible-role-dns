@@ -2,8 +2,11 @@
 ## ----------
 ## DNS情報を取得するドメイン
 ## -----------
-dns_domains: {}
+# dns_domains: {}
 #   "example.com":
+#     skip_a: false
+#     skip_aaaa: false
+#     skip_spf: false
 #     dmarc:
 #       sp: none
 #   "subdomain.example.com": null

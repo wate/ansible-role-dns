@@ -15,10 +15,6 @@ Role Variables
 
 設定方法の詳細については[defaults/main.yml](defaults/main.yml)のサンプルコードを参照してください。
 
-### `dns_domains`
-
-DNS情報を取得するドメイン
-
 ### `dns_recodes`
 
 収集したDNSレコードの内容  

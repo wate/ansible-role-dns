@@ -18,7 +18,7 @@
     loop_var: tmp_dns_domain
 - name: Add get_registrable domain to dns_domains variable
   ansible.builtin.set_fact:
-    dns_domains: "{{ dns_domains | combine({tmp_domain: {'spf_skip': true}}) }}"
+    dns_domains: "{{ dns_domains | combine({tmp_domain: {'skip_spf': true, 'skip_a': true, 'skip_aaaa': true}}) }}"
   when: dns_domains[tmp_domain] is undefined
   loop: "{{ tmp_domains | unique }}"
   loop_control:
