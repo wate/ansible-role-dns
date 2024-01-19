@@ -17,7 +17,7 @@ dns_recodes: []
 dns_spf_default:
   other_values: []
     # - include:example.com
-  all_qualifier: "?"
+  all_qualifier: "~"
 
 ## ----------
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/

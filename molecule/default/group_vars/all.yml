@@ -1,16 +1,18 @@
 ---
 opendkim_domains:
   - example.com
-  - example.net
   - subdomain.example.com
   - subdomain.example.net
 
 dns_domains:
   "example.com":
-    dmarc_sp: none
+    dmarc:
+      sp: none
   "subdomain.example.com": null
   "subdomain.example.net":
     ipaddr:
       ipv4: "123.123.123.123"
-      # ipv6: ""
-    spf_all_qualifier: "~"
+      # ipv6: "[::]1"
+    spf:
+      all_qualifier: "?"
+      # other_values: []

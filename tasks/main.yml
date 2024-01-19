@@ -10,6 +10,19 @@
     gather_subset:
       - default_ipv4
       - default_ipv6
+- name: Pickup registrable domain
+  ansible.builtin.set_fact:
+    tmp_domains: "{{ (tmp_domains | default([])) + [(tmp_dns_domain.key | community.dns.get_registrable_domain)] }}"
+  loop: "{{ dns_domains | dict2items }}"
+  loop_control:
+    loop_var: tmp_dns_domain
+- name: Add get_registrable domain to dns_domains variable
+  ansible.builtin.set_fact:
+    dns_domains: "{{ dns_domains | combine({tmp_domain: {'spf_skip': true}}) }}"
+  when: dns_domains[tmp_domain] is undefined
+  loop: "{{ tmp_domains | unique }}"
+  loop_control:
+    loop_var: tmp_domain
 - name: Initialise dkim key table
   ansible.builtin.set_fact:
     dns_dkim_key_table_data: {}

@@ -1,9 +1,19 @@
 v=spf1
-ip4:{{ dns_domain_setting.ipaddr.ipv4 | default(ansible_facts.default_ipv4.address) }}
-{% if dns_domain_setting.ipaddr.ip6 is defined or ansible_facts.default_ipv6.address is defined -%}
-1p6:{{ dns_domain_setting.ipaddr.ip6 | default(ansible_facts.default_ipv6.address) }}
+{% set dns_domain_spf_setting = dns_domain_setting.spf | default({}) -%}
+{% set dns_domain_ipaddr = dns_domain_setting.ipaddr | default({}) -%}
+{% set spf_ipv4_addr = dns_domain_ipaddr.ipv4 | default('') -%}
+{% if spf_ipv4_addr | length > 0 or ansible_facts.default_ipv4.address is defined -%}
+ip4:{{ spf_ipv4_addr | default(ansible_facts.default_ipv4.address, true) }}
 {% endif %}
-{% for spf_other_value in dns_domain_setting.other_values | default(dns_spf_default.other_values | default([])) -%}
+{% set spf_ipv6_addr = dns_domain_ipaddr.ipv6 | default('') -%}
+{% if spf_ipv6_addr | length > 0 or ansible_facts.default_ipv6.address is defined -%}
+1p6:{{ spf_ipv6_addr | default(ansible_facts.default_ipv6.address, true)}}
+{% endif %}
+{% set spf_other_values = dns_domain_setting.spf.other_values | default([]) -%}
+{% if spf_other_values | length == 0 and dns_spf_default.other_values | length > 0 -%}
+{% set spf_other_values = dns_spf_default.other_values -%}
+{% endif %}
+{% for spf_other_value in spf_other_values -%}
 {{ spf_other_value }}
 {% endfor %}
-{{ dns_domain_setting.spf_all_qualifier | default(dns_spf_default.all_qualifier) }}all
+{{ dns_domain_spf_setting.all_qualifier | default(dns_spf_default.all_qualifier) }}all
