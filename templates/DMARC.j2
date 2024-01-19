@@ -1,21 +1,22 @@
 v=DMARC1
-p={{ dns_domain_setting.dmarc_p | default(dns_dmarc_default.p) }}
-pct={{ dns_domain_setting.dmarc_pct | default(dns_dmarc_default.pct | default(100)) }}
-{% if dns_domain_setting.dmarc_sp is defined or dns_dmarc_default.sp is defined -%}
-sp={{ dns_domain_setting.dmarc_sp | default(dns_dmarc_default.sp) }}
+{% set dns_domain_dmarc = dns_domain_setting.dmarc | default({}) -%}
+p={{ dns_domain_dmarc.p | default(dns_dmarc_default.p) }}
+pct={{ dns_domain_dmarc.pct | default(dns_dmarc_default.pct | default(100)) }}
+{% if dns_domain_dmarc.sp is defined or dns_dmarc_default.sp is defined -%}
+sp={{ dns_domain_dmarc.sp | default(dns_dmarc_default.sp) }}
 {% endif %}
-{% if dns_domain_setting.dmarc_adkim is defined or dns_dmarc_default.adkim is defined -%}
-adkim={{ dns_domain_setting.dmarc_adkim | default(dns_dmarc_default.adkim) }}
+{% if dns_domain_dmarc.adkim is defined or dns_dmarc_default.adkim is defined -%}
+adkim={{ dns_domain_dmarc.adkim | default(dns_dmarc_default.adkim) }}
 {% endif %}
-{% if dns_domain_setting.dmarc_aspf is defined or dns_dmarc_default.aspf is defined -%}
-aspf={{ dns_domain_setting.dmarc_aspf | default(dns_dmarc_default.aspf) }}
+{% if dns_domain_dmarc.aspf is defined or dns_dmarc_default.aspf is defined -%}
+aspf={{ dns_domain_dmarc.aspf | default(dns_dmarc_default.aspf) }}
 {% endif %}
-{% if dns_domain_setting.dmarc_fo is defined or dns_dmarc_default.fo is defined -%}
-fo={{ dns_domain_setting.dmarc_fo | default(dns_dmarc_default.fo) }}
+{% if dns_domain_dmarc.fo is defined or dns_dmarc_default.fo is defined -%}
+fo={{ dns_domain_dmarc.fo | default(dns_dmarc_default.fo) }}
 {% endif %}
-{% if dns_domain_setting.dmarc_rua is defined or dns_dmarc_default.rua is defined -%}
-rua=mailto:{{ dns_domain_setting.dmarc_rua | default(dns_dmarc_default.rua) }}
+{% if dns_domain_dmarc.rua is defined or dns_dmarc_default.rua is defined -%}
+rua=mailto:{{ dns_domain_dmarc.rua | default(dns_dmarc_default.rua) }}
 {% endif %}
-{% if dns_domain_setting.dmarc_ruf is defined or dns_dmarc_default.ruf is defined -%}
-ruf=mailto:{{ dns_domain_setting.dmarc_ruf | default(dns_dmarc_default.ruf) }}
+{% if dns_domain_dmarc.ruf is defined or dns_dmarc_default.ruf is defined -%}
+ruf=mailto:{{ dns_domain_dmarc.ruf | default(dns_dmarc_default.ruf) }}
 {% endif %}
