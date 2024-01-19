@@ -1,0 +1,5 @@
+{% set dns_domain_ipaddr = dns_domain_setting.ipaddr | default({}) -%}
+{% set spf_ipv6_addr = dns_domain_ipaddr.ipv6 | default('') -%}
+{% if spf_ipv6_addr | length > 0 or ansible_facts.default_ipv6.address is defined -%}
+{{ spf_ipv6_addr | default(ansible_facts.default_ipv6.address, true)}}
+{% endif %}
