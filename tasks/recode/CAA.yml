@@ -1,3 +1,4 @@
+---
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:
