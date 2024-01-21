@@ -1,0 +1,9 @@
+- name: Set recode variables
+  ansible.builtin.set_fact:
+    dns_recode:
+      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
+      type: TXT
+      rdata: "{{ lookup('ansible.builtin.template', 'CAA.j2') | trim | replace('\n', ' ') }}"
+- name: Combine CAA recode value
+  ansible.builtin.set_fact:
+    dns_domain_recodes: "{{ dns_domain_recodes | combine({'CAA': dns_recode}, recursive=true) }}"

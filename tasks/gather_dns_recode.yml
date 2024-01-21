@@ -19,18 +19,31 @@
 - name: SPF recode value
   ansible.builtin.import_tasks:
     file: recode/SPF.yml
-  when: not (dns_domain_setting.skip_spf | default(false))
+  when:
+    - not (dns_domain_setting.skip_spf | default(false))
 - name: DKIM recode value
   ansible.builtin.import_tasks:
     file: recode/DKIM.yml
-- name: DMARC recode value
-  ansible.builtin.import_tasks:
-    file: recode/postmaster.yml
-  when: dns_domain_setting.postmaster is defined
+  when:
+    - not (dns_domain_setting.skip_dkim | default(false))
 - name: DMARC recode value
   ansible.builtin.import_tasks:
     file: recode/DMARC.yml
-  when: dns_domain == dns_domain | community.dns.get_registrable_domain
-- name: Combine DNS recode variable
+  when:
+    - dns_domain == dns_domain | community.dns.get_registrable_domain
+    - not (dns_domain_setting.skip_dmarc | default(false))
+- name: Google site verification recode value
+  ansible.builtin.import_tasks:
+    file: recode/site_verification.yml
+  when:
+    - dns_domain_setting.site_verification is defined
+    - not (dns_domain_setting.skip_site_verification | default(false))
+- name: CAA recode value
+  ansible.builtin.import_tasks:
+    file: recode/CAA.yml
+  when:
+    - not (dns_domain_setting.skip_caa | default(false))
+    - (dns_domain_setting.caa is defined or dns_caa_default.ca_domain is defined)
+- name: Combine DNS recode at {{ dns_domain }}
   ansible.builtin.set_fact:
     dns_recodes: "{{ dns_recodes | combine({dns_domain: dns_domain_recodes}, recursive=true) }}"

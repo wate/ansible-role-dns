@@ -37,10 +37,28 @@ dns_spf_default:
 
 ## ----------
 ## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
-## ※DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
-## (以下のロールのopendkim_domains変数に定義したドメインのいずれかを変数に設定してください)
+## 現在この変数はロール機能しておらず、
+## DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
+## (以下のロールの変数を元にDNS情報の抽出をこなっています)
 ## https://github.com/wate/ansible-role-opendkim
 ## ----------
+dns_dkim_default: {}
+
+## ----------
+## CAAレコードに設定する初期値
+## 参考URL：https://www.cybertrust.co.jp/sureserver/support/caa.html
+## ----------
+dns_caa_default:
+  ## フラグ
+  flag: 0
+  ## タグ  (issue, issuewild, iodef)
+  ## issue: 特定のホスト名のみ許可する
+  ## ssuewild: ワイルドカードからのみ許可する
+  ## iodef: 違反レポートをURL(http:、https:、またはmailto:)に送信する
+  tag: issue
+  ##  CAドメイン
+  ca_domain: letsencrypt.org
+
 
 ## ----------
 ## DMARCレコードに設定する初期値
