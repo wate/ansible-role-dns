@@ -4,7 +4,7 @@
     dns_recode:
       name: _dmarc
       type: TXT
-      rdata: "{{ lookup('ansible.builtin.template', 'DMARC.j2') | trim | replace('\n', '; ') }};"
+      rdata: "{{ lookup('ansible.builtin.template', 'recode/DMARC.j2') | trim | replace('\n', '; ') }};"
 - name: Combine DMARC recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'DMARC': dns_recode}, recursive=true) }}"

@@ -4,7 +4,7 @@
     dns_recode:
       name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
       type: A
-      rdata: "{{ lookup('ansible.builtin.template', 'A.j2') | trim }}"
+      rdata: "{{ lookup('ansible.builtin.template', 'recode/A.j2') | trim }}"
 - name: Combine A recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'A': dns_recode}, recursive=true) }}"
