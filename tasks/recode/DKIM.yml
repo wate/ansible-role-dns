@@ -24,7 +24,7 @@
             dns_recode:
               name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
               type: TXT
-              rdata: "{{ dns_dkim_reocode_value }}"
+              value: "{{ dns_dkim_reocode_value }}"
         - name: Combine DKIM recode
           ansible.builtin.set_fact:
             dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"
