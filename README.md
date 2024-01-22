@@ -15,8 +15,14 @@ Role Variables
 
 設定方法の詳細については[defaults/main.yml](defaults/main.yml)のサンプルコードを参照してください。
 
-### `dns_recodes`
+### `dns_domains`
 
+DNS情報を取得するドメイン  
+収集されたDNSのレコード情報は「dns_recodes」変数にホスト名毎のディクショナリとして格納されます
+
+### `dns_recode_output_dir`
+
+DNSレコード情報の出力先ディレクトリ
 
 ### `dns_spf_default`
 
