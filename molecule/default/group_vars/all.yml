@@ -8,6 +8,7 @@ dns_domains:
   "example.com":
     dmarc:
       sp: none
+  "example.co.jp": null
   "subdomain.example.com": null
   "subdomain.example.net":
     ipaddr:

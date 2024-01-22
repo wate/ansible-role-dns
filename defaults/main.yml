@@ -32,7 +32,7 @@ dns_recodes: []
 ## -----------
 dns_spf_default:
   other_values: []
-    # - include:example.com
+  #   - include:_spf.google.com
   all_qualifier: "~"
 
 ## ----------
