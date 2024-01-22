@@ -17,8 +17,6 @@ Role Variables
 
 ### `dns_recodes`
 
-収集したDNSレコードの内容  
-※以下の変数に各レコードの情報が追加されていきます
 
 ### `dns_spf_default`
 

@@ -1,30 +1,40 @@
 ---
 ## ----------
 ## DNS情報を取得するドメイン
+## 収集されたDNSのレコード情報は「dns_recodes」変数にホスト名毎のディクショナリとして格納されます
 ## -----------
-# dns_domains: {}
-#   "example.com":
-#     skip_a: false
-#     skip_aaaa: false
-#     skip_spf: false
-#     dmarc:
-#       sp: none
+dns_domains: {}
 #   "subdomain.example.com": null
-#   "subdomain.example.net":
+#   "subdomain.example.net": null
+#   ### Full orverride DNS setting
+#   "example.com":
+#     # skip_a: true
+#     # skip_aaaa: true
+#     # skip_spf: true
+#     # skip_dkim: true
+#     # skip_site_verification: true
+#     # skip_dmarc: false
+#     # skip_caa: true
 #     ipaddr:
 #       ipv4: "123.123.123.123"
 #       # ipv6: "[::]1"
 #     spf:
+#       other_values:
+#         - include:_spf.google.com
 #       all_qualifier: "?"
-#       # other_values: []
+#     dmarc:
+#       p: none
+#       rua: rua-report@example.com
+#       ruf: ruf-report@example.com
 #     ## @see https://postmaster.google.com/
 #     postmaster: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
+#     caa:
+#       ca_domain: letsencrypt.org
 
 ## ----------
-## 収集したDNSレコードの内容
-## ※以下の変数に各レコードの情報が追加されていきます
+## DNSレコード情報の出力先ディレクトリ
 ## ----------
-dns_recodes: []
+dns_recode_output_dir: null
 
 ## ----------
 ## SPF(Sender Policy Framework)レコードに設定する初期値
@@ -58,7 +68,6 @@ dns_caa_default:
   tag: issue
   ##  CAドメイン
   ca_domain: letsencrypt.org
-
 
 ## ----------
 ## DMARCレコードに設定する初期値

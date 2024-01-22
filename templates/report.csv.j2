@@ -1,0 +1,4 @@
+"Type","Recode Name","Recode Type","Recode Value"
+{% for type, recode_data in dns_domain_recodes.items() %}
+"{{ type }}","{{ recode_data.name }}","{{ recode_data.type }}","{{ recode_data.value }}"
+{% endfor %}

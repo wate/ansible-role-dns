@@ -6,8 +6,17 @@ opendkim_domains:
 
 dns_domains:
   "example.com":
+    # skip_a: true
+    # skip_aaaa: true
+    # skip_spf: true
+    # skip_dkim: true
+    # skip_site_verification: true
+    # skip_dmarc: false
+    # skip_caa: true
     dmarc:
       sp: none
+      rua: rua-report@example.com
+      ruf: ruf-report@example.com
   "example.co.jp": null
   "subdomain.example.com": null
   "subdomain.example.net":
@@ -16,6 +25,9 @@ dns_domains:
       # ipv6: "[::]1"
     spf:
       all_qualifier: "?"
-      # other_values: []
+      other_values:
+        - include:_spf.google.com
     ## @see https://postmaster.google.com/
     site_verification: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
+
+dns_recode_output_dir: ./output

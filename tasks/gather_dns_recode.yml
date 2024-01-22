@@ -47,3 +47,18 @@
 - name: Combine DNS recode at {{ dns_domain }}
   ansible.builtin.set_fact:
     dns_recodes: "{{ dns_recodes | combine({dns_domain: dns_domain_recodes}, recursive=true) }}"
+- name: Output CSV report file
+  when: dns_recode_output_dir | length > 0
+  become: false
+  delegate_to: 127.0.0.1
+  block:
+    - name: Output CSV report file
+      ansible.builtin.template:
+        src: report.csv.j2
+        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir, dns_recode_output_dir + '/') }}{{ dns_domain }}.csv"
+        mode: "0644"
+    - name: Output Markdown report file
+      ansible.builtin.template:
+        src: report.md.j2
+        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir, dns_recode_output_dir + '/') }}{{ dns_domain }}.md"
+        mode: "0644"

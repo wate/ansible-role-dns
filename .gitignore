@@ -17,3 +17,6 @@
 
 ### VisualStudioCode ###
 /.vscode/
+
+### molecule ##
+molecule/*/output/*

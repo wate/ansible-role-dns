@@ -1,0 +1,16 @@
+`{{ dns_domain }}` DNS setting info
+====================
+{% for type, recode_data in dns_domain_recodes.items() %}
+
+{{ type }}
+--------------------
+
+* 名前：`{{ recode_data.name }}`
+* タイプ：`{{ recode_data.type }}`
+
+### 設定値
+
+```
+{{ recode_data.value }}
+```
+{% endfor %}

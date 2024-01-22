@@ -10,3 +10,6 @@ dns_auto_append_domain_skip_option:
   skip_site_verification: true
   skip_dmarc: false
   skip_caa: true
+
+# 収集したDNSレコード情報を格納する変数
+dns_recodes: []

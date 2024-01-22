@@ -34,6 +34,14 @@
     - name: Set dns_dkim_key_table variable task
       ansible.builtin.import_tasks:
         file: parse_dkim_key_table.yml
+- name: Create output dir
+  ansible.builtin.file:
+    path: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}"
+    state: directory
+    mode: "0755"
+  when: dns_recode_output_dir | length > 0
+  become: false
+  delegate_to: 127.0.0.1
 - name: 各ドメイン毎のDNS設定情報を取得
   ansible.builtin.include_tasks:
     file: gather_dns_recode.yml
@@ -41,6 +49,6 @@
   loop_control:
     loop_var: gather_dns_domain
     label: gather_dns_domain.key
-- name: Display DNS recode setting info
-  ansible.builtin.debug:
-    var: dns_recodes
+# - name: Display DNS recode setting info
+#   ansible.builtin.debug:
+#     var: dns_recodes
