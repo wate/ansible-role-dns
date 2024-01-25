@@ -17,6 +17,10 @@ dns_domains:
       sp: none
       rua: rua-report@example.com
       ruf: ruf-report@example.com
+    cnames:
+      - www
+      - ftp
+      - mail
   "example.co.jp": null
   "subdomain.example.com": null
   "subdomain.example.net":

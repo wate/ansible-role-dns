@@ -2,7 +2,7 @@
 dns_dependency_packages: []
 
 ## ロール側で自動追加したドメインが生成するDNSレコードのオプション設定
-dns_auto_append_domain_skip_option:
+dns_auto_append_option:
   skip_a: true
   skip_aaaa: true
   skip_spf: true

@@ -21,11 +21,22 @@
     tmp_domains: "{{ tmp_domains | unique }}"
 - name: Add registrable domain to dns_domains variable
   ansible.builtin.set_fact:
-    dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_domain_skip_option}) }}"
+    dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_option}) }}"
   when: dns_domains[tmp_domain] is undefined
   loop: "{{ tmp_domains }}"
   loop_control:
     loop_var: tmp_domain
+- name: Append CNAME domains
+  ansible.builtin.set_fact:
+    dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_cname_option}) }}"
+  when: dns_domains[tmp_domain] is undefined
+  vars:
+    tmp_domain: "{{ dns_cname.1 + '.' + dns_cname.0.key }}"
+    dns_auto_append_cname_option:
+      "{{ dns_auto_append_option | combine({'cname': (dns_cname.0.key | community.dns.remove_registrable_domain | default('@', true))}) }}"
+  loop: "{{ query('ansible.builtin.subelements', (dns_domains | dict2items), 'value.cnames', {'skip_missing': True}) }}"
+  loop_control:
+    loop_var: dns_cname
 - name: Initialise dkim key table
   ansible.builtin.set_fact:
     dns_dkim_key_table_data: {}
@@ -45,7 +56,7 @@
   when: dns_recode_output_dir | length > 0
   become: false
   delegate_to: 127.0.0.1
-- name: 各ドメイン毎のDNS設定情報を取得
+- name: Gather DNS recode info
   ansible.builtin.include_tasks:
     file: gather_dns_recode.yml
   loop: "{{ dns_domains | dict2items }}"

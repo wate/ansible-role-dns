@@ -38,6 +38,11 @@
   when:
     - dns_domain_setting.site_verification is defined
     - not (dns_domain_setting.skip_site_verification | default(false))
+- name: CNAME recode value
+  ansible.builtin.import_tasks:
+    file: recode/CNAME.yml
+  when:
+    - dns_domain_setting.cname is defined
 - name: CAA recode value
   ansible.builtin.import_tasks:
     file: recode/CAA.yml
