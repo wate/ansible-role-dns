@@ -13,3 +13,17 @@ dns_auto_append_domain_skip_option:
 
 # 収集したDNSレコード情報を格納する変数
 dns_recodes: []
+
+## @see https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.2
+dns_spf_qualifier_pass: "+"
+dns_spf_qualifier_neutral: "?"
+dns_spf_qualifier_softfail: "~"
+dns_spf_qualifier_fail: "-"
+
+## @see https://datatracker.ietf.org/doc/html/rfc7489#section-6.3
+dmarc_policy_none: none
+dmarc_policy_quarantine: quarantine
+dmarc_policy_reject: reject
+
+dmarc_mode_relaxed: r
+dmarc_mode_strict: s

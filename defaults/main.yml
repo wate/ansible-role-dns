@@ -27,7 +27,7 @@ dns_domains: {}
 #       rua: rua-report@example.com
 #       ruf: ruf-report@example.com
 #     ## @see https://postmaster.google.com/
-#     postmaster: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
+#     site_verification: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
 #     caa:
 #       ca_domain: letsencrypt.org
 
@@ -37,42 +37,66 @@ dns_domains: {}
 dns_recode_output_dir: null
 
 ## ----------
-## SPF(Sender Policy Framework)レコードに設定する初期値
-## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
+## SPFレコードに設定する初期値
+##
+## 参考URL：
+## https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/
+## https://datatracker.ietf.org/doc/html/rfc7208
 ## -----------
 dns_spf_default:
   other_values: []
   #   - include:_spf.google.com
-  all_qualifier: "~"
+  all_qualifier: "{{ dns_spf_qualifier_softfail }}"
+
 
 ## ----------
-## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
-## 現在この変数はロール機能しておらず、
-## DKIMレコードの設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
-## (以下のロールの変数を元にDNS情報の抽出をこなっています)
+## DKIMレコードに設定する初期値
+##
+## ※現在この変数はロール機能しておらず、設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
+## 以下のロールの変数を元にDNS情報の抽出をこなっています。
 ## https://github.com/wate/ansible-role-opendkim
+##
+## 参考URL：
+## https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
+## https://datatracker.ietf.org/doc/html/rfc6376/
 ## ----------
 dns_dkim_default: {}
 
 ## ----------
-## CAAレコードに設定する初期値
-## 参考URL：https://www.cybertrust.co.jp/sureserver/support/caa.html
-## ----------
-dns_caa_default:
-  ## フラグ
-  flag: 0
-  ## タグ  (issue, issuewild, iodef)
-  ## issue: 特定のホスト名のみ許可する
-  ## ssuewild: ワイルドカードからのみ許可する
-  ## iodef: 違反レポートをURL(http:、https:、またはmailto:)に送信する
-  tag: issue
-  ##  CAドメイン
-  ca_domain: letsencrypt.org
-
-## ----------
 ## DMARCレコードに設定する初期値
-## 参考URL：https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
+##
+## 参考URL：
+## https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dmarc-record/
+## https://datatracker.ietf.org/doc/html/rfc7489
 ## -----------
+# +----------+-------------+---------+------------------------------+
+# | Tag Name | Reference   | Status  | Description                  |
+# +----------+-------------+---------+------------------------------+
+# |  adkim   |  RFC 7489   | current | DKIM alignment mode          |
+# +----------+-------------+---------+------------------------------+
+# |   aspf   |  RFC 7489   | current | SPF alignment mode           |
+# +----------+-------------+---------+------------------------------+
+# |    fo    |  RFC 7489   | current | Failure reporting options    |
+# +----------+-------------+---------+------------------------------+
+# |     p    |  RFC 7489   | current | Requested handling policy    |
+# +----------+-------------+---------+------------------------------+
+# |    pct   |  RFC 7489   | current | Sampling rate                |
+# +----------+-------------+---------+------------------------------+
+# |    rf    |  RFC 7489   | current | Failure reporting format(s)  |
+# +----------+-------------+---------+------------------------------+
+# |    ri    |  RFC 7489   | current | Aggregate Reporting interval |
+# +----------+-------------+---------+------------------------------+
+# |    rua   |  RFC 7489   | current | Reporting URI(s) for         |
+# |          |             |         | aggregate data               |
+# +----------+-------------+---------+------------------------------+
+# |    ruf   |  RFC 7489   | current | Reporting URI(s) for         |
+# |          |             |         | failure data                 |
+# +----------+-------------+---------+------------------------------+
+# |    sp    |  RFC 7489   | current | Requested handling policy    |
+# |          |             |         | for subdomains               |
+# +----------+-------------+---------+------------------------------+
+# |     v    |  RFC 7489   | current | Specification version        |
+# +----------+-------------+---------+------------------------------+
 dns_dmarc_default:
   ## メール受信者に要望する認証失敗時の動作 (none, quarantine, reject)
   ## none:何もしない / quarantine:隔離 / reject:受信拒否
@@ -95,3 +119,21 @@ dns_dmarc_default:
   # rua: report@example.com
   ## 失敗レポートの送り先
   # ruf: report@example.com
+
+## ----------
+## CAAレコードに設定する初期値
+##
+## 参考URL：
+## https://www.cybertrust.co.jp/sureserver/support/caa.html
+## https://datatracker.ietf.org/doc/html/rfc6844
+## ----------
+dns_caa_default:
+  ## フラグ
+  flag: 0
+  ## タグ  (issue, issuewild, iodef)
+  ## issue: 特定のホスト名のみ許可する
+  ## ssuewild: ワイルドカードからのみ許可する
+  ## iodef: 違反レポートをURL(http:、https:、またはmailto:)に送信する
+  tag: issue
+  ##  CAドメイン
+  ca_domain: letsencrypt.org
