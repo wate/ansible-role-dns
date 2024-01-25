@@ -5,7 +5,7 @@ opendkim_domains:
   - subdomain.example.net
 
 dns_domains:
-  "example.com":
+  example.com:
     # skip_a: true
     # skip_aaaa: true
     # skip_spf: true
@@ -21,11 +21,11 @@ dns_domains:
       - www
       - ftp
       - mail
-  "example.co.jp": null
-  "subdomain.example.com": null
-  "subdomain.example.net":
+  example.co.jp:
+  subdomain.example.com:
+  subdomain.example.net:
     ipaddr:
-      ipv4: "123.123.123.123"
+      ipv4: 123.123.123.123
       # ipv6: "[::]1"
     spf:
       all_qualifier: "?"

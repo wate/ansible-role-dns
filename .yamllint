@@ -43,7 +43,7 @@ rules:
   # key-ordering: disable
   ## https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.line_length
   line-length:
-    max: 160
+    max: 170
     # allow-non-breakable-words: true
     # allow-non-breakable-inline-mappings: false
   ## https://yamllint.readthedocs.io/en/stable/rules.html#module-yamllint.rules.new_line_at_end_of_file

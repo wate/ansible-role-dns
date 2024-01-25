@@ -34,8 +34,7 @@ dns_domains: {}
 ## ----------
 ## DNSレコード情報の出力先ディレクトリ
 ## ----------
-dns_recode_output_dir: null
-
+dns_recode_output_dir:
 ## ----------
 ## SPFレコードに設定する初期値
 ##
@@ -47,7 +46,6 @@ dns_spf_default:
   other_values: []
   #   - include:_spf.google.com
   all_qualifier: "{{ dns_spf_qualifier_softfail }}"
-
 
 ## ----------
 ## DKIMレコードに設定する初期値
@@ -61,7 +59,6 @@ dns_spf_default:
 ## https://datatracker.ietf.org/doc/html/rfc6376/
 ## ----------
 dns_dkim_default: {}
-
 ## ----------
 ## DMARCレコードに設定する初期値
 ##

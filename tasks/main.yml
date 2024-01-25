@@ -32,8 +32,7 @@
   when: dns_domains[tmp_domain] is undefined
   vars:
     tmp_domain: "{{ dns_cname.1 + '.' + dns_cname.0.key }}"
-    dns_auto_append_cname_option:
-      "{{ dns_auto_append_option | combine({'cname': (dns_cname.0.key | community.dns.remove_registrable_domain | default('@', true))}) }}"
+    dns_auto_append_cname_option: "{{ dns_auto_append_option | combine({'cname': (dns_cname.0.key | community.dns.remove_registrable_domain | default('@', true))}) }}"
   loop: "{{ query('ansible.builtin.subelements', (dns_domains | dict2items), 'value.cnames', {'skip_missing': True}) }}"
   loop_control:
     loop_var: dns_cname

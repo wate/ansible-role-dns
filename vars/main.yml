@@ -1,6 +1,5 @@
 ---
 dns_dependency_packages: []
-
 ## ロール側で自動追加したドメインが生成するDNSレコードのオプション設定
 dns_auto_append_option:
   skip_a: true
@@ -13,9 +12,8 @@ dns_auto_append_option:
 
 # 収集したDNSレコード情報を格納する変数
 dns_recodes: []
-
 ## @see https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.2
-dns_spf_qualifier_pass: "+"
+dns_spf_qualifier_pass: +
 dns_spf_qualifier_neutral: "?"
 dns_spf_qualifier_softfail: "~"
 dns_spf_qualifier_fail: "-"
