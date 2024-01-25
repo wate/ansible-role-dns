@@ -7,6 +7,7 @@
         cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
         removes: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
       register: cat_result
+      changed_when: false
     - name: Generate DNS DKIM recode
       when: cat_result.stdout is defined
       block:
