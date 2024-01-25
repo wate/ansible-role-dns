@@ -16,11 +16,14 @@
   loop: "{{ dns_domains | dict2items }}"
   loop_control:
     loop_var: tmp_dns_domain
+- name: Unique filter registrable domain variable
+  ansible.builtin.set_fact:
+    tmp_domains: "{{ tmp_domains | unique }}"
 - name: Add registrable domain to dns_domains variable
   ansible.builtin.set_fact:
     dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_domain_skip_option}) }}"
   when: dns_domains[tmp_domain] is undefined
-  loop: "{{ tmp_domains | unique }}"
+  loop: "{{ tmp_domains }}"
   loop_control:
     loop_var: tmp_domain
 - name: Initialise dkim key table

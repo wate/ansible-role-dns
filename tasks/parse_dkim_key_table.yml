@@ -4,7 +4,7 @@
     cmd: cat {{ opendkim_table_config_dir }}/KeyTable
     removes: "{{ opendkim_table_config_dir }}/KeyTable"
   register: cat_key_table_result
-- name: Debug
+- name: Set dns_dkim_key_table_data variable
   when: cat_key_table_result.stdout_lines | default([]) | length > 0
   block:
     - name: Set tmp variables
