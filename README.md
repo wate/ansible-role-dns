@@ -55,6 +55,10 @@ CAAレコードに設定する初期値
 https://www.cybertrust.co.jp/sureserver/support/caa.html  
 https://datatracker.ietf.org/doc/html/rfc6844
 
+### `dns_ttl_default`
+
+TTLの初期値
+
 Example Playbook
 --------------
 
