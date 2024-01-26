@@ -134,3 +134,8 @@ dns_caa_default:
   tag: issue
   ##  CAドメイン
   ca_domain: letsencrypt.org
+
+## ----------
+## TTLの初期値
+## ----------
+dns_ttl_default: 3600

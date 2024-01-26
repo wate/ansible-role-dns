@@ -14,13 +14,14 @@
       name: _dmarc
       type: TXT
       value: "{{ dns_recode_value }}"
+      ttl: "{{ dns_ttl_default }}"
 - name: Append zone DMARC recode variable
   ansible.builtin.set_fact:
     dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
   vars:
     dns_zone_data:
-      name: _dmarc
-      ttl: 1
+      name: _dmarc.{{ dns_zone }}.
+      ttl: "{{ dns_ttl_default }}"
       type: TXT
       value: "{{ dns_recode_value }}"
       comment: DMARC Recode

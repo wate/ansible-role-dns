@@ -33,13 +33,14 @@
               name: "{{ dns_dkim_reocode_name }}"
               type: TXT
               value: "{{ dns_dkim_reocode_value }}"
+              ttl: "{{ dns_ttl_default }}"
         - name: Append zone DKIM recode variable
           ansible.builtin.set_fact:
             dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
           vars:
             dns_zone_data:
-              name: "{{ dns_dkim_reocode_name }}"
-              ttl: 1
+              name: "{{ (dns_dkim_reocode_name == '@') | ternary('', dns_dkim_reocode_name + '.') }}{{ dns_zone }}."
+              ttl: "{{ dns_ttl_default }}"
               type: TXT
               value: "{{ dns_dkim_reocode_value }}"
               comment: DKIM Recode

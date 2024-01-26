@@ -19,7 +19,6 @@ dns_domains:
       ruf: ruf-report@example.com
     cnames:
       - www
-      - ftp
       - mail
   example.co.jp:
   subdomain.example.com:

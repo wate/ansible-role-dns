@@ -1,15 +1,13 @@
-;; @see https://developers.cloudflare.com/dns/manage-dns-records/how-to/import-and-export/
-{% for type, zone_type_data in dns_zone_file.value.items() %}
-
-;; {{ type }} Recodes
-{% for zone_data in zone_type_data %}
-{% set zone_data_value = zone_data.value -%}
-{% if zone_data_value is contains(' ') and type == 'TXT' -%}
-{% set zone_data_value = '"' + zone_data_value + '"' %}
+{% for recode_type, recode_list in dns_zone_data.value.items() %}
+;; {{ recode_type }} Recodes
+{% for recode in recode_list %}
+{% set recode_value = recode.value | replace('@', dns_zone_data.key + '.') %}
+{% if recode_type == 'TXT' and recode_value is contains(' ') %}
+{% set recode_value = '"' + recode_value + '"' %}
 {% endif %}
-{% if zone_data.comment is defined %}
-;;; {{ zone_data.comment }}
-{% endif %}
-{{ zone_data.name }}	{{ zone_data.ttl }}	IN	{{ zone_data.type }}	{{ zone_data_value }}
+{{ recode.name }}	{{ recode.ttl }}	IN	{{ recode.type }}	{{ recode_value }}{{ ' ; ' + recode.comment if recode.comment is defined else '' }}
 {% endfor %}
+{% if not loop.last %}
+
+{% endif %}
 {% endfor %}

@@ -6,21 +6,21 @@
 - name: Set recode value variables
   ansible.builtin.set_fact:
     dns_recode_value: "{{ dns_domain_setting.cname }}"
-- name: Set recode variables
+- name: Combine CNAME recode value
   ansible.builtin.set_fact:
+    dns_domain_recodes: "{{ dns_domain_recodes | combine({'CNAME': dns_recode}, recursive=true) }}"
+  vars:
     dns_recode:
       name: "{{ dns_recode_name }}"
       type: CNAME
       value: "{{ dns_recode_value }}"
-- name: Combine CNAME recode value
-  ansible.builtin.set_fact:
-    dns_domain_recodes: "{{ dns_domain_recodes | combine({'CNAME': dns_recode}, recursive=true) }}"
+      ttl: "{{ dns_ttl_default }}"
 - name: Append zone CNAME recode variable
   ansible.builtin.set_fact:
     dns_zones: "{{ dns_zones | combine({dns_zone: {'CNAME': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
   vars:
     dns_zone_data:
-      name: "{{ dns_recode_name }}"
-      ttl: 1
+      name: "{{ (dns_recode_name == '@') | ternary('', dns_recode_name + '.') }}{{ dns_zone }}."
+      ttl: "{{ dns_ttl_default }}"
       type: CNAME
       value: "{{ dns_recode_value }}"

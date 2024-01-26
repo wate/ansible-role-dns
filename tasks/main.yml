@@ -72,9 +72,9 @@
     - name: Generate zone file
       ansible.builtin.template:
         src: zone_file.txt.j2
-        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}/zone_{{ dns_zone_file.key }}.txt"
+        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}/zone_{{ dns_zone_data.key }}.txt"
         mode: "0644"
       loop: "{{ dns_zones | dict2items }}"
       loop_control:
-        loop_var: dns_zone_file
-        label: "{{ dns_zone_file.key }}"
+        loop_var: dns_zone_data
+        label: "{{ dns_zone_data.key }}"

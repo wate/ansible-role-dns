@@ -14,12 +14,13 @@
       name: "{{ dns_recode_name }}"
       type: A
       value: "{{ dns_recode_value }}"
+      ttl: "{{ dns_ttl_default }}"
 - name: Append zone A recode variable
   ansible.builtin.set_fact:
     dns_zones: "{{ dns_zones | combine({dns_zone: {'A': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
   vars:
     dns_zone_data:
-      name: "{{ dns_recode_name }}"
-      ttl: 1
+      name: "{{ (dns_recode_name == '@') | ternary('', dns_recode_name + '.') }}{{ dns_zone }}."
+      ttl: "{{ dns_ttl_default }}"
       type: A
       value: "{{ dns_recode_value }}"
