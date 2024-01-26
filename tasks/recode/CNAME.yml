@@ -15,13 +15,13 @@
 - name: Combine CNAME recode value
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'CNAME': dns_recode}, recursive=true) }}"
-# - name: Append zone CNAME recode variable
-#   ansible.builtin.set_fact:
-#     dns_zones: "{{ dns_zones | combine({dns_zone: {'CNAME': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
-#   vars:
-#     dns_zone_data:
-#       name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', dns_zone) }}."
-#       ttl: 1
-#       type: CNAME
-#       value: "{{ dns_recode_value }}"
-#       comment: ""
+- name: Append zone CNAME recode variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'CNAME': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+  vars:
+    dns_zone_data:
+      name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', '') }}{{ dns_zone }}."
+      ttl: 1
+      type: CNAME
+      value: "{{ dns_recode_value }}"
+      comment: ""

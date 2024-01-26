@@ -3,12 +3,24 @@
   ansible.builtin.set_fact:
     dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
   when: dns_zones[dns_zone]['TXT'] is undefined
-- name: Set recode variables
+- name: Set recode value variables
   ansible.builtin.set_fact:
-    dns_recode:
-      name: _dmarc
-      type: TXT
-      value: "{{ lookup('ansible.builtin.template', 'recode/DMARC.j2') | trim | replace('\n', '; ') }};"
+    dns_recode_value: "{{ lookup('ansible.builtin.template', 'recode/DMARC.j2') | trim | replace('\n', '; ') }}"
 - name: Combine DMARC recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'DMARC': dns_recode}, recursive=true) }}"
+  vars:
+    dns_recode:
+      name: _dmarc
+      type: TXT
+      value: "{{ dns_recode_value }}"
+- name: Append zone DMARC recode variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+  vars:
+    dns_zone_data:
+      name: _dmarc.{{ dns_zone }}.
+      ttl: 1
+      type: TXT
+      value: "{{ dns_recode_value }}"
+      comment: DMARC

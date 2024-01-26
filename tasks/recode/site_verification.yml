@@ -3,12 +3,24 @@
   ansible.builtin.set_fact:
     dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
   when: dns_zones[dns_zone]['TXT'] is undefined
-- name: Set recode variables
+- name: Set recode value variables
   ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
-      type: TXT
-      value: "{{ dns_domain_setting.site_verification }};"
+    dns_recode_value: "{{ dns_domain_setting.site_verification }}"
 - name: Combine Site verification recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'Site verification': dns_recode}, recursive=true) }}"
+  vars:
+    dns_recode:
+      name: "{{ dns_recode_name }}"
+      type: TXT
+      value: "{{ dns_recode_value }}"
+- name: Append zone Site verification recode variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+  vars:
+    dns_zone_data:
+      name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', '') }}{{ dns_zone }}."
+      ttl: 1
+      type: TXT
+      value: "{{ dns_recode_value }}"
+      comment: Site verification
