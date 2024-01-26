@@ -1,4 +1,8 @@
 ---
+- name: Initialize zone TXT recode variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
+  when: dns_zones[dns_zone]['TXT'] is undefined
 - name: Set recode variables
   ansible.builtin.set_fact:
     dns_recode:

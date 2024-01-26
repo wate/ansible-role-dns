@@ -1,9 +1,15 @@
 ---
-- name: Initialise DNS recode variables at Domain
+- name: Initialize DNS recode variables at hostname
   ansible.builtin.set_fact:
     dns_domain: "{{ gather_dns_domain.key }}"
+    dns_zone: "{{ gather_dns_domain.key | community.dns.get_registrable_domain }}"
     dns_domain_setting: "{{ gather_dns_domain.value | default({}, true) }}"
     dns_domain_recodes: {}
+    dns_recode_name: "{{ gather_dns_domain.key | community.dns.remove_registrable_domain | default('@', true) }}"
+- name: Initialize zone variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: []}) }}"
+  when: dns_zones[dns_zone] is undefined
 - name: A recode value
   ansible.builtin.import_tasks:
     file: recode/A.yml

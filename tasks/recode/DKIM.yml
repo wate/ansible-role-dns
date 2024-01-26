@@ -2,6 +2,10 @@
 - name: Set DKIM recode Data
   when: dns_dkim_key_table_data[dns_domain] is defined
   block:
+    - name: Initialize zone TXT recode variable
+      ansible.builtin.set_fact:
+        dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
+      when: dns_zones[dns_zone]['TXT'] is undefined
     - name: Read public key content
       ansible.builtin.command:
         cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
@@ -13,6 +17,7 @@
       block:
         - name: Extraction DNS recode value
           ansible.builtin.set_fact:
+            dns_dkim_reocode_name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
             dns_dkim_reocode_value: "{{ cat_result.stdout.split('(')[1].split(')')[0] }}"
         - name: Transform DNS recode value(replace whitespace)
           ansible.builtin.set_fact:
@@ -20,12 +25,11 @@
         - name: Transform DNS recode value(Trim doble quote)
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
-        - name: Set recode variables
-          ansible.builtin.set_fact:
-            dns_recode:
-              name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
-              type: TXT
-              value: "{{ dns_dkim_reocode_value }}"
         - name: Combine DKIM recode
           ansible.builtin.set_fact:
             dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"
+          vars:
+            dns_recode:
+              name: "{{ dns_dkim_reocode_name }}"
+              type: TXT
+              value: "{{ dns_dkim_reocode_value }}"

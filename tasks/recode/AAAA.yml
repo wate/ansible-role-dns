@@ -1,10 +1,16 @@
 ---
-- name: Set recode variables
+- name: Initialize zone AAAA recode variable
   ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
-      type: A
-      value: "{{ lookup('ansible.builtin.template', 'recode/AAAA.j2') | trim }}"
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'AAAA': []}}, recursive=true) }}"
+  when: dns_zones[dns_zone]['AAAA'] is undefined
+- name: Set recode value variables
+  ansible.builtin.set_fact:
+    dns_recode_value: "{{ lookup('ansible.builtin.template', 'recode/AAAA.j2') | trim }}"
 - name: Combine AAAA recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'AAAA': dns_recode}, recursive=true) }}"
+  vars:
+    dns_recode:
+      name: "{{ dns_recode_name }}"
+      type: AAAA
+      value: "{{ dns_recode_value }}"

@@ -1,10 +1,26 @@
 ---
-- name: Set recode variables
+- name: Initialize zone A recode variable
   ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
-      type: A
-      value: "{{ lookup('ansible.builtin.template', 'recode/A.j2') | trim }}"
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'A': []}}, recursive=true) }}"
+  when: dns_zones[dns_zone]['A'] is undefined
+- name: Set recode value variables
+  ansible.builtin.set_fact:
+    dns_recode_value: "{{ lookup('ansible.builtin.template', 'recode/A.j2') | trim }}"
 - name: Combine A recode
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'A': dns_recode}, recursive=true) }}"
+  vars:
+    dns_recode:
+      name: "{{ dns_recode_name }}"
+      type: A
+      value: "{{ dns_recode_value }}"
+# - name: Append zone A recode variable
+#   ansible.builtin.set_fact:
+#     dns_zones: "{{ dns_zones | combine({dns_zone: {'A': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+#   vars:
+#     dns_zone_data:
+#       name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', dns_zone) }}."
+#       ttl: 1
+#       type: A
+#       value: "{{ dns_recode_value }}"
+#       comment: ""

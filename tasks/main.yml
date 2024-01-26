@@ -62,6 +62,6 @@
   loop_control:
     loop_var: gather_dns_domain
     label: gather_dns_domain.key
-# - name: Display DNS recode setting info
-#   ansible.builtin.debug:
-#     var: dns_recodes
+- name: Debug
+  ansible.builtin.debug:
+    var: dns_zones

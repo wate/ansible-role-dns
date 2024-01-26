@@ -1,10 +1,26 @@
 ---
-- name: Set recode variables
+- name: Initialize zone CAA recode variable
   ansible.builtin.set_fact:
-    dns_recode:
-      name: "{{ dns_domain | community.dns.remove_registrable_domain | default('@', true) }}"
-      type: CAA
-      value: "{{ lookup('ansible.builtin.template', 'recode/CAA.j2') | trim | replace('\n', ' ') }}"
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'CAA': []}}, recursive=true) }}"
+  when: dns_zones[dns_zone]['CAA'] is undefined
+- name: Set recode value variables
+  ansible.builtin.set_fact:
+    dns_recode_value: "{{ lookup('ansible.builtin.template', 'recode/CAA.j2') | trim }}"
 - name: Combine CAA recode value
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'CAA': dns_recode}, recursive=true) }}"
+  vars:
+    dns_recode:
+      name: "{{ dns_recode_name }}"
+      type: CAA
+      value: "{{ dns_recode_value }}"
+- name: Append zone CAA recode variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'CAA': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+  vars:
+    dns_zone_data:
+      name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', dns_zone) }}."
+      ttl: 1
+      type: CAA
+      value: "{{ dns_recode_value }}"
+      comment: ""
