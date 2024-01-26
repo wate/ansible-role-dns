@@ -23,5 +23,5 @@
       name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', '') }}{{ dns_zone }}."
       ttl: 1
       type: CNAME
-      value: "{{ dns_recode_value }}"
+      value: "{{ (dns_recode_value != '@') | ternary(dns_recode_value, dns_zone + '.') }}"
       comment: ""

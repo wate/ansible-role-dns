@@ -62,6 +62,19 @@
   loop_control:
     loop_var: gather_dns_domain
     label: gather_dns_domain.key
-- name: Debug
-  ansible.builtin.debug:
-    var: dns_zones
+- name: Generate zone file
+  when:
+    - dns_recode_output_dir | length > 0
+    - dns_zones | length > 0
+  become: false
+  delegate_to: 127.0.0.1
+  block:
+    - name: Generate zone file
+      ansible.builtin.template:
+        src: zone_file.txt.j2
+        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}/zone_{{ dns_zone_file.key }}.txt"
+        mode: "0644"
+      loop: "{{ dns_zones | dict2items }}"
+      loop_control:
+        loop_var: dns_zone_file
+        label: "{{ dns_zone_file.key }}"

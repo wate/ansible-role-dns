@@ -1,0 +1,12 @@
+{% for type, zone_type_data in dns_zone_file.value.items() %}
+
+;; {{ type }} Recodes
+{% for zone_data in zone_type_data %}
+{% set zone_data_value = zone_data.value -%}
+{% set zone_data_comment = (zone_data.comment | length > 0) | ternary(' ; ' + zone_data.comment, '') -%}
+{% if zone_data_value is contains(' ') or zone_data_value is contains(';') -%}
+{% set zone_data_value = '"' + zone_data_value + '"' %}
+{% endif %}
+{{ zone_data.name }}	{{ zone_data.ttl }}	IN	{{ zone_data.type }}	{{ zone_data_value }}{{ zone_data_comment }}
+{% endfor %}
+{% endfor %}
