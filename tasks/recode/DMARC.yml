@@ -19,8 +19,8 @@
     dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
   vars:
     dns_zone_data:
-      name: _dmarc.{{ dns_zone }}.
+      name: _dmarc
       ttl: 1
       type: TXT
       value: "{{ dns_recode_value }}"
-      comment: DMARC
+      comment: DMARC Recode

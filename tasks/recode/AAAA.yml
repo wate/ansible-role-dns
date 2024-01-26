@@ -19,8 +19,7 @@
     dns_zones: "{{ dns_zones | combine({dns_zone: {'AAAA': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
   vars:
     dns_zone_data:
-      name: "{{ (dns_recode_name != '@') | ternary(dns_recode_name + '.', '') }}{{ dns_zone }}."
+      name: "{{ dns_recode_name }}"
       ttl: 1
       type: AAAA
       value: "{{ dns_recode_value }}"
-      comment: ""

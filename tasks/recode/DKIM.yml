@@ -38,8 +38,8 @@
             dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
           vars:
             dns_zone_data:
-              name: "{{ (dns_dkim_reocode_name != '@') | ternary(dns_dkim_reocode_name + '.', '') }}{{ dns_zone }}."
+              name: "{{ dns_dkim_reocode_name }}"
               ttl: 1
               type: TXT
               value: "{{ dns_dkim_reocode_value }}"
-              comment: DKIM
+              comment: DKIM Recode
