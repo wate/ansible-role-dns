@@ -6,6 +6,7 @@
 - name: Set recode value variables
   ansible.builtin.set_fact:
     dns_recode_value: "{{ lookup('ansible.builtin.template', 'recode/CAA.j2') | trim  | replace('\n', ' ') }}"
+    dns_zone_value_parts: "{{ lookup('ansible.builtin.template', 'recode/CAA.j2').split('\n') }}"
 - name: Combine CAA recode value
   ansible.builtin.set_fact:
     dns_domain_recodes: "{{ dns_domain_recodes | combine({'CAA': dns_recode}, recursive=true) }}"
@@ -23,4 +24,4 @@
       name: "{{ (dns_recode_name == '@') | ternary('', dns_recode_name + '.') }}{{ dns_zone }}."
       ttl: "{{ dns_ttl_default }}"
       type: CAA
-      value: "{{ dns_recode_value }}"
+      value: '{{ dns_zone_value_parts[0] }} {{ dns_zone_value_parts[1] }} "{{ dns_zone_value_parts[2] }}"'
