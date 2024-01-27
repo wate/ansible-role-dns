@@ -21,6 +21,7 @@
             cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
             removes: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
           register: zone_file_cat_result
+          changed_when: false
         - name: Extraction DNS recode value
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ zone_file_cat_result.stdout.split('(')[1].split(')')[0] }}"
