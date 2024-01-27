@@ -1,8 +1,8 @@
 ---
 - name: Get key table content
   ansible.builtin.command:
-    cmd: cat {{ opendkim_table_config_dir }}/KeyTable
-    removes: "{{ opendkim_table_config_dir }}/KeyTable"
+    cmd: cat {{ dns_opendkim_keytable_path }}
+    removes: "{{ dns_opendkim_keytable_path }}"
   register: cat_key_table_result
   changed_when: false
 - name: Set dns_dkim_key_table_data variable

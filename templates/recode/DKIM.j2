@@ -1,0 +1,19 @@
+v=DKIM1
+{% set dns_domain_dkim = dns_domain_setting.dkim | default({}) -%}
+k={{ dns_domain_dkim.k | default(dns_dkim_default.k | default('rsa')) }}
+p={{ dns_domain_dkim.p | default(dns_dkim_default.p) }}
+{% if dns_domain_dkim.h is defined or dns_dkim_default.h is defined -%}
+h={{ dns_domain_dkim.h | default(dns_dkim_default.h) }}
+{% endif %}
+{% if dns_domain_dkim.g is defined or dns_dkim_default.g is defined -%}
+g={{ dns_domain_dkim.g | default(dns_dkim_default.g) }}
+{% endif %}
+{% if dns_domain_dkim.s is defined or dns_dkim_default.s is defined -%}
+s={{ dns_domain_dkim.s | default(dns_dkim_default.s) }}
+{% endif %}
+{% if dns_domain_dkim.t is defined or dns_dkim_default.t is defined -%}
+t={{ dns_domain_dkim.t | default(dns_dkim_default.t) }}
+{% endif %}
+{% if dns_domain_dkim.n is defined or dns_dkim_default.n is defined -%}
+n={{ dns_domain_dkim.n | default(dns_dkim_default.n) }}
+{% endif %}

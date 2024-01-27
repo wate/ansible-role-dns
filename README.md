@@ -31,14 +31,16 @@ SPFレコードに設定する初期値
 https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-spf-record/  
 https://datatracker.ietf.org/doc/html/rfc7208
 
+### `dns_opendkim_keytable_path`
+
+OpenDKIMのKeyTableファイルのパス
+
 ### `dns_dkim_default`
 
 DKIMレコードに設定する初期値  
-※現在この変数はロール機能しておらず、設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。  
-以下のロールの変数を元にDNS情報の抽出をこなっています。  
-https://github.com/wate/ansible-role-opendkim  
 参考URL：  
 https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/  
+https://salt.iajapan.org/wpmu/anti_spam/admin/tech/explanation/dkim/  
 https://datatracker.ietf.org/doc/html/rfc6376/
 
 ### `dns_dmarc_default`

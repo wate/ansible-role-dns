@@ -48,17 +48,33 @@ dns_spf_default:
   all_qualifier: "{{ dns_spf_qualifier_softfail }}"
 
 ## ----------
+## OpenDKIMのKeyTableファイルのパス
+## ----------
+dns_opendkim_keytable_path: "{{ opendkim_table_config_dir | default('/etc/opendkim') }}/KeyTable"
+
+## ----------
 ## DKIMレコードに設定する初期値
-##
-## ※現在この変数はロール機能しておらず、設定情報の抽出は以下のロールの変数があるかどうかなどを元に抽出判定を行っています。
-## 以下のロールの変数を元にDNS情報の抽出をこなっています。
-## https://github.com/wate/ansible-role-opendkim
 ##
 ## 参考URL：
 ## https://www.cloudflare.com/ja-jp/learning/dns/dns-records/dns-dkim-record/
+## https://salt.iajapan.org/wpmu/anti_spam/admin/tech/explanation/dkim/
 ## https://datatracker.ietf.org/doc/html/rfc6376/
 ## ----------
-dns_dkim_default: {}
+dns_dkim_default:
+  ## 鍵の形式
+  # k: rsa
+  p: ""
+  ## 利用可能なハッシュ方式
+  # h: "*"
+  ## 鍵の適用条件パターン
+  # g: "*"
+  ## サービスタイプ
+  # s: "*"
+  ## 説明
+  # n: ""
+  ## フラグ(s, y)
+  # t: null
+
 ## ----------
 ## DMARCレコードに設定する初期値
 ##

@@ -6,41 +6,50 @@
       ansible.builtin.set_fact:
         dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
       when: dns_zones[dns_zone]['TXT'] is undefined
-    - name: Read public key content
-      ansible.builtin.command:
-        cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
-        removes: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
-      register: cat_result
-      changed_when: false
+    - name: Extraction DNS recode name
+      ansible.builtin.set_fact:
+        dns_dkim_reocode_name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
+    - name: Check zone file
+      ansible.builtin.stat:
+        path: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
+      register: zone_file_stat_result
     - name: Generate DNS DKIM recode
-      when: cat_result.stdout is defined
+      when: zone_file_stat_result.stat.exists
       block:
+        - name: Read public key content
+          ansible.builtin.command:
+            cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
+            removes: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
+          register: zone_file_cat_result
         - name: Extraction DNS recode value
           ansible.builtin.set_fact:
-            dns_dkim_reocode_name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
-            dns_dkim_reocode_value: "{{ cat_result.stdout.split('(')[1].split(')')[0] }}"
+            dns_dkim_reocode_value: "{{ zone_file_cat_result.stdout.split('(')[1].split(')')[0] }}"
         - name: Transform DNS recode value(replace whitespace)
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | trim | regex_replace('\"\\s+\"', '') }}"
-        - name: Transform DNS recode value(Trim doble quote)
+        - name: Transform DNS recode value(trim doble quote)
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
-        - name: Combine DKIM recode
-          ansible.builtin.set_fact:
-            dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"
-          vars:
-            dns_recode:
-              name: "{{ dns_dkim_reocode_name }}"
-              type: TXT
-              value: "{{ dns_dkim_reocode_value }}"
-              ttl: "{{ dns_ttl_default }}"
-        - name: Append zone DKIM recode variable
-          ansible.builtin.set_fact:
-            dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
-          vars:
-            dns_zone_data:
-              name: "{{ (dns_dkim_reocode_name == '@') | ternary('', dns_dkim_reocode_name + '.') }}{{ dns_zone }}."
-              ttl: "{{ dns_ttl_default }}"
-              type: TXT
-              value: "{{ dns_dkim_reocode_value }}"
-              comment: DKIM Recode
+    - name: Generate DNS DKIM recode(manual)
+      ansible.builtin.set_fact:
+        dns_dkim_reocode_value: "{{ lookup('ansible.builtin.template', 'recode/DKIM.j2') | trim | replace('\n', '; ') }}"
+      when: not zone_file_stat_result.stat.exists
+    - name: Combine DKIM recode
+      ansible.builtin.set_fact:
+        dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"
+      vars:
+        dns_recode:
+          name: "{{ dns_dkim_reocode_name }}"
+          type: TXT
+          value: "{{ dns_dkim_reocode_value }}"
+          ttl: "{{ dns_ttl_default }}"
+    - name: Append zone DKIM recode variable
+      ansible.builtin.set_fact:
+        dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+      vars:
+        dns_zone_data:
+          name: "{{ (dns_dkim_reocode_name == '@') | ternary('', dns_dkim_reocode_name + '.') }}{{ dns_zone }}."
+          ttl: "{{ dns_ttl_default }}"
+          type: TXT
+          value: "{{ dns_dkim_reocode_value }}"
+          comment: DKIM Recode
