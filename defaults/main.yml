@@ -22,6 +22,10 @@ dns_domains: {}
 #       other_values:
 #         - include:_spf.google.com
 #       all_qualifier: "?"
+#     dkim:
+#       ## 自動生成されたゾーンファイルが存在しない場合に設定する公開鍵の内容
+#       ## ※自動生成されたゾーンファイルが存在はその内容が優先される
+#       p: public_key_content
 #     dmarc:
 #       p: none
 #       rua: rua-report@example.com
