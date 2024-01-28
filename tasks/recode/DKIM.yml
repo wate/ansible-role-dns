@@ -13,7 +13,7 @@
       ansible.builtin.stat:
         path: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
       register: zone_file_stat_result
-    - name: Generate DNS DKIM recode
+    - name: Generate DKIM recode
       when: zone_file_stat_result.stat.exists
       block:
         - name: Read public key content
@@ -25,16 +25,35 @@
         - name: Extraction DNS recode value
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ zone_file_cat_result.stdout.split('(')[1].split(')')[0] }}"
-        - name: Transform DNS recode value(replace whitespace)
+        - name: Transform DKIM recode value(replace whitespace)
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | trim | regex_replace('\"\\s+\"', '') }}"
-        - name: Transform DNS recode value(trim doble quote)
+        - name: Transform DKIM recode value(trim doble quote)
           ansible.builtin.set_fact:
             dns_dkim_reocode_value: "{{ dns_dkim_reocode_value | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
-    - name: Generate DNS DKIM recode(manual)
+    - name: Generate DKIM recode value(manual)
       ansible.builtin.set_fact:
         dns_dkim_reocode_value: "{{ lookup('ansible.builtin.template', 'recode/DKIM.j2') | trim | replace('\n', '; ') }}"
       when: not zone_file_stat_result.stat.exists
+    # - name: Transform DKIM recode value(255 characters or more)
+    #   when: (dns_dkim_reocode_value | length) > 255
+    #   block:
+    #     - name: Set loop count variable
+    #       ansible.builtin.set_fact:
+    #         range_end: "{{ ((dns_dkim_reocode_value | length) / 200) | round(0, 'ceil') }}"
+    #         dns_dkim_reocode_value_parts: []
+    #     - name: Set recode value variables
+    #       ansible.builtin.set_fact:
+    #         dns_dkim_reocode_value_parts: '{{ dns_dkim_reocode_value_parts + [dns_dkim_reocode_value[(start_index | int):(end_index | int)]] }}'
+    #       vars:
+    #         start_index: "{{ range_item * 200 }}"
+    #         end_index: "{{ range_item * 200 + 200 }}"
+    #       loop: "{{ range(0, (range_end | int)) | list }}"
+    #       loop_control:
+    #         loop_var: range_item
+    #     - name: Orverride recode value variable
+    #       ansible.builtin.set_fact:
+    #         dns_dkim_reocode_value: "{{ '\"' + dns_dkim_reocode_value_parts | join('\"\n\"') + '\"' }}"
     - name: Combine DKIM recode
       ansible.builtin.set_fact:
         dns_domain_recodes: "{{ dns_domain_recodes | combine({'DKIM': dns_recode}, recursive=true) }}"

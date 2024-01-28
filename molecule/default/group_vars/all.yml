@@ -4,6 +4,8 @@ opendkim_domains:
   - subdomain.example.com
   - subdomain.example.net
 
+# opendkim_rsa_keylen: 2048
+
 dns_domains:
   example.com:
     # skip_a: true
