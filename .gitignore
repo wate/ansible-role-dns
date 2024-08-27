@@ -14,9 +14,7 @@
 
 ### Molecule ###
 .env.yml
+/molecule/*/output/
 
 ### VisualStudioCode ###
 /.vscode/
-
-### molecule ##
-molecule/*/output/*
