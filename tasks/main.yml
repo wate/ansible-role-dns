@@ -87,7 +87,7 @@
 - name: Generate zone file
   when:
     - dns_recode_output_dir | length > 0
-    - dns_zones | length > 0
+    - dns_zones | dict2items | length > 0
   become: false
   delegate_to: 127.0.0.1
   block:
