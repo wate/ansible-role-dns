@@ -38,7 +38,8 @@ dns_domains: {}
 ## ----------
 ## DNSレコード情報の出力先ディレクトリ
 ## ----------
-dns_recode_output_dir:
+dns_recode_output_dir: ./dns_info
+
 ## ----------
 ## SPFレコードに設定する初期値
 ##
