@@ -3,8 +3,7 @@
 - name: Import dependency task
   ansible.builtin.import_tasks:
     file: dependency.yml
-  tags:
-    - role_dns_dependency
+  tags: role_dns_dependency
 - name: Gather IP Address
   ansible.builtin.setup:
     gather_subset:
