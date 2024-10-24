@@ -1,4 +1,4 @@
 {% set dns_domain_caa = dns_domain_setting.caa | default({}) -%}
 {{ dns_domain_caa.flag | default(dns_caa_default.flag) }}
 {{ dns_domain_caa.tag | default(dns_caa_default.tag) }}
-{{ dns_domain_caa.ca_domain | default(dns_caa_default.ca_domain) }}
+"{{ dns_domain_caa.ca_domain | default(dns_caa_default.ca_domain) }}"
