@@ -38,7 +38,7 @@
   loop: "{{ query('ansible.builtin.subelements', (dns_domains | dict2items), 'value.cnames', {'skip_missing': True}) }}"
   loop_control:
     loop_var: dns_cname
-- name: Initialise dkim key table
+- name: Initialize dkim key table
   ansible.builtin.set_fact:
     dns_dkim_key_table_data: {}
 - name: Get key table content
