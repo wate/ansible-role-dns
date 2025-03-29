@@ -13,12 +13,14 @@ use_default_rules: true
 #   - .cache/
 #   - .github/
 #   - .devcontainer/
+#   - tests/
 
 ## @see https://ansible-lint.readthedocs.io/rules/
 
 ## 無効にするルール
 skip_list:
   - role-name
+  - name[casing]
 
 ## 警告として扱うルール
 warn_list:
@@ -38,7 +40,6 @@ warn_list:
   - yaml[document-start]
   - yaml[truthy]
   ## custom
-  - name[casing]
   - no-changed-when
   - no-handler
 
@@ -48,13 +49,8 @@ warn_list:
 
 # List of additional collections to allow in only-builtins rule.
 # only_builtins_allow_collections:
-#  - community.general
+#   - example_ns.example_collection
 
 # List of additions modules to allow in only-builtins rule.
 # only_builtins_allow_modules:
 #   - example_module
-
-# Enforce variable names to follow pattern below, in addition to Ansible own
-# requirements, like avoiding python identifiers. To disable add `var-naming`
-# to skip_list.
-# var_naming_pattern: "^dns_[a-z0-9_]*[a-z]$"
