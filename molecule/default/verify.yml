@@ -6,6 +6,44 @@
   # check_mode: true
   become: true
   tasks:
-    - name: Example assertion
+    ## パッケージのテスト
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+    - name: Assert dependency packages are installed
       ansible.builtin.assert:
-        that: true
+        that:
+          - "ansible_facts.packages['python3-dnspython'] is defined"
+        fail_msg: "python3-dnspython is not installed"
+        success_msg: "Required DNS dependency packages are installed"
+    ## Pythonモジュールのテスト
+    - name: Check python3-dnspython import
+      ansible.builtin.command:
+        cmd: python3 -c "import dns; print(dns.__version__)"
+      register: dns_python_import
+      changed_when: false
+      failed_when: false
+    - name: Assert python3-dnspython import works
+      ansible.builtin.assert:
+        that:
+          - dns_python_import.rc == 0
+          - dns_python_import.stdout | length > 0
+        fail_msg: "python3-dnspython import failed"
+        success_msg: "python3-dnspython import succeeded"
+    ## 出力ディレクトリのテスト
+    - name: Set dns output dir fact
+      ansible.builtin.set_fact:
+        dns_output_dir: "{{ (dns_recode_output_dir | default('./dns_info')) | regex_replace('/+$', '') }}"
+    - name: Stat dns output dir on control node
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}"
+      register: dns_output_dir_stat
+      delegate_to: localhost
+      become: false
+    - name: Assert dns output dir exists on control node
+      ansible.builtin.assert:
+        that:
+          - dns_output_dir_stat.stat.exists
+          - dns_output_dir_stat.stat.isdir
+        fail_msg: "DNS output directory not found on control node: {{ dns_output_dir }}"
+        success_msg: "DNS output directory exists on control node: {{ dns_output_dir }}"
