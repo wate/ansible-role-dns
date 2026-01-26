@@ -2,8 +2,11 @@
 ;; {{ record_type }} Records
 {% for record in record_list %}
 {% set record_value = record.value | replace('@', dns_zone_data.key + '.') %}
-{% if record_type == 'TXT' and record_value is contains(' ') %}
-{% set record_value = '"' + record_value + '"' %}
+{% set record_value_trimmed = record_value | trim %}
+{% if record_type == 'TXT' and record_value_trimmed is contains(' ') and not (record_value_trimmed.startswith('(') or record_value_trimmed.startswith('"')) %}
+{% set record_value = '"' + record_value_trimmed + '"' %}
+{% else %}
+{% set record_value = record_value_trimmed %}
 {% endif %}
 {{ record.name }}	{{ record.ttl }}	IN	{{ record.type }}	{{ record_value }}{{ ' ; ' + record.comment if record.comment is defined else '' }}
 {% endfor %}

@@ -4,6 +4,8 @@
   hosts: all
   gather_facts: true
   become: true
+  vars:
+    opendkim_rsa_keylen: 1024
   pre_tasks:
     - name: Update cache(apt)
       ansible.builtin.apt:
@@ -14,7 +16,6 @@
         update_cache: true
       when: ansible_facts.pkg_mgr == 'dnf'
   roles:
-    # - role: common
     - role: opendkim
   tasks:
     - name: Include role

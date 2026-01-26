@@ -1,59 +1,56 @@
 ---
 - name: Set DKIM record data
   when: dns_dkim_key_table_data[dns_domain] is defined
+  vars:
+    dns_dkim_record_name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
+    dns_dkim_zone_file_path: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
   block:
     - name: Initialize zone TXT record variable
       ansible.builtin.set_fact:
         dns_zones: "{{ dns_zones | combine({dns_zone: {'TXT': []}}, recursive=true) }}"
       when: dns_zones[dns_zone]['TXT'] is undefined
-    - name: Extract DNS record name
-      ansible.builtin.set_fact:
-        dns_dkim_record_name: "{{ dns_dkim_key_table_data[dns_domain][0] | default('@', true) }}"
     - name: Check zone file
       ansible.builtin.stat:
-        path: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
+        path: "{{ dns_dkim_zone_file_path }}"
       register: zone_file_stat_result
-    - name: Generate DKIM record
+    - name: Generate DKIM record value(from zone file)
       when: zone_file_stat_result.stat.exists
       block:
-        - name: Read public key content
-          ansible.builtin.command:
-            cmd: cat {{ dns_dkim_key_table_data[dns_domain][1] }}
-            removes: "{{ dns_dkim_key_table_data[dns_domain][1] }}"
-          register: zone_file_cat_result
-          changed_when: false
-        - name: Extract DNS record value
+        - name: Read public key zone file content
+          ansible.builtin.slurp:
+            src: "{{ dns_dkim_zone_file_path }}"
+          register: zone_file_slurp_result
+        - name: Set DKIM record value(from zone file)
           ansible.builtin.set_fact:
-            dns_dkim_record_value: "{{ zone_file_cat_result.stdout.split('(')[1].split(')')[0] }}"
-        - name: Transform DKIM record value(replace whitespace)
-          ansible.builtin.set_fact:
-            dns_dkim_record_value: "{{ dns_dkim_record_value | trim | regex_replace('\"\\s+\"', '') }}"
-        - name: Transform DKIM record value(trim double quote)
-          ansible.builtin.set_fact:
-            dns_dkim_record_value: "{{ dns_dkim_record_value | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
+            dns_dkim_record_value: "{{ dkim_value_from_zone }}"
+          vars:
+            dkim_zone_text: "{{ zone_file_slurp_result.content | b64decode }}"
+            dkim_quoted_parts: "{{ dkim_zone_text | regex_findall('\"([^\"]*)\"') }}"
+            dkim_parens_text: "{{ dkim_zone_text | regex_search('(?s)\\((.*?)\\)', '\\1') | default('', true) }}"
+            dkim_parens_normalized: "{{ dkim_parens_text | trim | regex_replace('\"[ \\t\\r\\n]+\"', '') | regex_replace('^\"', '') | regex_replace('\"$', '') }}"
+            dkim_value_from_zone: "{{ (dkim_quoted_parts | join('') | trim) if (dkim_quoted_parts | length > 0) else dkim_parens_normalized }}"
+        - name: Validate DKIM record value(from zone file)
+          ansible.builtin.assert:
+            that:
+              - dns_dkim_record_value | length > 0
+            fail_msg: "Failed to parse DKIM zone file: {{ dns_dkim_zone_file_path }}"
+            quiet: true
     - name: Generate DKIM record value(manual)
       ansible.builtin.set_fact:
         dns_dkim_record_value: "{{ lookup('ansible.builtin.template', 'record/DKIM.j2') | trim | replace('\n', '; ') }}"
       when: not zone_file_stat_result.stat.exists
-    # - name: Transform DKIM record value(255 characters or more)
-    #   when: (dns_dkim_record_value | length) > 255
-    #   block:
-    #     - name: Set loop count variable
-    #       ansible.builtin.set_fact:
-    #         range_end: "{{ ((dns_dkim_record_value | length) / 200) | round(0, 'ceil') }}"
-    #         dns_dkim_record_value_parts: []
-    #     - name: Set record value variables
-    #       ansible.builtin.set_fact:
-    #         dns_dkim_record_value_parts: '{{ dns_dkim_record_value_parts + [dns_dkim_record_value[(start_index | int):(end_index | int)]] }}'
-    #       vars:
-    #         start_index: "{{ range_item * 200 }}"
-    #         end_index: "{{ range_item * 200 + 200 }}"
-    #       loop: "{{ range(0, (range_end | int)) | list }}"
-    #       loop_control:
-    #         loop_var: range_item
-    #     - name: Override record value variable
-    #       ansible.builtin.set_fact:
-    #         dns_dkim_record_value: "{{ '\"' + dns_dkim_record_value_parts | join('\"\n\"') + '\"' }}"
+    - name: Set DKIM zone record value
+      ansible.builtin.set_fact:
+        dns_dkim_zone_record_value: "{{ dns_dkim_record_value }}"
+    - name: Split DKIM zone record value(255 characters or more)
+      ansible.builtin.set_fact:
+        dns_dkim_zone_record_value: |-
+          (
+            "{{ dns_dkim_record_value_parts | join('"\n  "') }}"
+          )
+      vars:
+        dns_dkim_record_value_parts: "{{ dns_dkim_record_value | regex_findall('.{1,' + (dns_txt_chunk_size | string) + '}') }}"
+      when: (dns_dkim_record_value | length) > 255
     - name: Combine DKIM record
       ansible.builtin.set_fact:
         dns_domain_records: "{{ dns_domain_records | combine({'DKIM': dns_record}, recursive=true) }}"
@@ -71,5 +68,5 @@
           name: "{{ (dns_dkim_record_name == '@') | ternary('', dns_dkim_record_name + '.') }}{{ dns_zone }}."
           ttl: "{{ dns_ttl_default }}"
           type: TXT
-          value: "{{ dns_dkim_record_value }}"
+          value: "{{ dns_dkim_zone_record_value }}"
           comment: DKIM Record

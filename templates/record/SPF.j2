@@ -7,7 +7,7 @@ ip4:{{ spf_ipv4_addr | default(ansible_facts.default_ipv4.address, true) }}
 {% endif %}
 {% set spf_ipv6_addr = dns_domain_ipaddr.ipv6 | default('') -%}
 {% if spf_ipv6_addr | length > 0 or ansible_facts.default_ipv6.address is defined -%}
-1p6:{{ spf_ipv6_addr | default(ansible_facts.default_ipv6.address, true)}}
+ip6:{{ spf_ipv6_addr | default(ansible_facts.default_ipv6.address, true)}}
 {% endif %}
 {% set spf_other_values = dns_domain_setting.spf.other_values | default([]) -%}
 {% if spf_other_values | length == 0 and dns_spf_default.other_values | length > 0 -%}
