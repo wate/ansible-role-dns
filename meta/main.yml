@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: dns
   author: yoshiaki tanaka
-  description: Gather Sever DNS recodes
+  description: Gather Server DNS records
   license: Apache
   min_ansible_version: "2.20"
   platforms:

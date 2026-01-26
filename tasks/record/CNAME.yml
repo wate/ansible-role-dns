@@ -1,0 +1,26 @@
+---
+- name: Initialize zone CNAME record variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'CNAME': []}}, recursive=true) }}"
+  when: dns_zones[dns_zone]['CNAME'] is undefined
+- name: Set record value variables
+  ansible.builtin.set_fact:
+    dns_record_value: "{{ dns_domain_setting.cname }}"
+- name: Combine CNAME record value
+  ansible.builtin.set_fact:
+    dns_domain_records: "{{ dns_domain_records | combine({'CNAME': dns_record}, recursive=true) }}"
+  vars:
+    dns_record:
+      name: "{{ dns_record_name }}"
+      type: CNAME
+      value: "{{ dns_record_value }}"
+      ttl: "{{ dns_ttl_default }}"
+- name: Append zone CNAME record variable
+  ansible.builtin.set_fact:
+    dns_zones: "{{ dns_zones | combine({dns_zone: {'CNAME': [dns_zone_data]}}, recursive=true, list_merge='append') }}"
+  vars:
+    dns_zone_data:
+      name: "{{ (dns_record_name == '@') | ternary('', dns_record_name + '.') }}{{ dns_zone }}."
+      ttl: "{{ dns_ttl_default }}"
+      type: CNAME
+      value: "{{ dns_record_value }}"

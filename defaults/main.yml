@@ -1,12 +1,12 @@
 ---
 ## ----------
 ## DNS情報を取得するドメイン
-## 収集されたDNSのレコード情報は「dns_recodes」変数にホスト名毎のディクショナリとして格納されます
+## 収集されたDNSのレコード情報は「dns_records」変数にホスト名毎のディクショナリーとして格納されます
 ## -----------
 dns_domains: {}
 #   "subdomain.example.com": null
 #   "subdomain.example.net": null
-#   ### Full orverride DNS setting
+#   ### Full override DNS setting
 #   "example.com":
 #     # skip_a: true
 #     # skip_aaaa: true
@@ -24,21 +24,21 @@ dns_domains: {}
 #       all_qualifier: "?"
 #     dkim:
 #       ## 自動生成されたゾーンファイルが存在しない場合に設定する公開鍵の内容
-#       ## ※自動生成されたゾーンファイルが存在はその内容が優先される
+#       ## ※自動生成されたゾーンファイルが存在する場合はその内容が優先されます
 #       p: public_key_content
 #     dmarc:
 #       p: none
 #       rua: rua-report@example.com
 #       ruf: ruf-report@example.com
-#     ## @see https://postmaster.google.com/
-#     site_verification: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
 #     caa:
 #       ca_domain: letsencrypt.org
+#     ## @see https://postmaster.google.com/
+#     site_verification: google-site-verification=1234567890abcdefghijklmnopqrstuvwxyz
 
 ## ----------
 ## DNSレコード情報の出力先ディレクトリ
 ## ----------
-dns_recode_output_dir: ./dns_info
+dns_record_output_dir: "{{ dns_recode_output_dir | default('./dns_info') }}"
 
 ## ----------
 ## SPFレコードに設定する初期値
@@ -150,7 +150,7 @@ dns_caa_default:
   flag: 0
   ## タグ  (issue, issuewild, iodef)
   ## issue: 特定のホスト名のみ許可する
-  ## ssuewild: ワイルドカードからのみ許可する
+  ## issuewild: ワイルドカードからのみ許可する
   ## iodef: 違反レポートをURL(http:、https:、またはmailto:)に送信する
   tag: issue
   ##  CAドメイン

@@ -1,11 +1,11 @@
-{% for recode_type, recode_list in dns_zone_data.value.items() %}
-;; {{ recode_type }} Recodes
-{% for recode in recode_list %}
-{% set recode_value = recode.value | replace('@', dns_zone_data.key + '.') %}
-{% if recode_type == 'TXT' and recode_value is contains(' ') %}
-{% set recode_value = '"' + recode_value + '"' %}
+{% for record_type, record_list in dns_zone_data.value.items() %}
+;; {{ record_type }} Records
+{% for record in record_list %}
+{% set record_value = record.value | replace('@', dns_zone_data.key + '.') %}
+{% if record_type == 'TXT' and record_value is contains(' ') %}
+{% set record_value = '"' + record_value + '"' %}
 {% endif %}
-{{ recode.name }}	{{ recode.ttl }}	IN	{{ recode.type }}	{{ recode_value }}{{ ' ; ' + recode.comment if recode.comment is defined else '' }}
+{{ record.name }}	{{ record.ttl }}	IN	{{ record.type }}	{{ record_value }}{{ ' ; ' + record.comment if record.comment is defined else '' }}
 {% endfor %}
 {% if not loop.last %}
 
