@@ -3,9 +3,61 @@
 - name: Verify
   hosts: all
   gather_facts: false
-  # check_mode: true
   become: true
   tasks:
+    ## 出力ディレクトリのテスト
+    - name: Set dns output dir fact
+      ansible.builtin.set_fact:
+        dns_output_dir: "{{ (dns_record_output_dir | default(dns_recode_output_dir | default('./dns_info'))) | regex_replace('/+$', '') }}"
+    - name: Stat dns output dir on control node
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}"
+      register: dns_output_dir_stat
+      delegate_to: localhost
+      become: false
+    - name: Assert dns output dir exists on control node
+      ansible.builtin.assert:
+        that:
+          - dns_output_dir_stat.stat.exists
+          - dns_output_dir_stat.stat.isdir
+        fail_msg: "DNS output directory not found on control node: {{ dns_output_dir }}"
+        success_msg: "DNS output directory exists on control node: {{ dns_output_dir }}"
+    ## DKIM(TXT分割)のテスト
+    - name: Set zone file path(example.com)
+      ansible.builtin.set_fact:
+        zone_example_com_file: "{{ dns_output_dir }}/zone_example.com.txt"
+    - name: Stat zone file(example.com) on control node
+      ansible.builtin.stat:
+        path: "{{ zone_example_com_file }}"
+      register: zone_example_com_stat
+      delegate_to: localhost
+      become: false
+    # - name: Assert zone file(example.com) exists on control node
+    #   ansible.builtin.assert:
+    #     that:
+    #       - zone_example_com_stat.stat.exists
+    #       - zone_example_com_stat.stat.isreg
+    #     fail_msg: "Zone file for example.com not found on control node: {{ zone_example_com_file }}"
+    #     success_msg: "Zone file for example.com exists on control node: {{ zone_example_com_file }}"
+    # - name: Read zone file(example.com) content on control node
+    #   ansible.builtin.slurp:
+    #     src: "{{ zone_example_com_file }}"
+    #   register: zone_example_com_slurp
+    #   delegate_to: localhost
+    #   become: false
+    # - name: Assert DKIM record is split in zone file(example.com)
+    #   ansible.builtin.assert:
+    #     that:
+    #       - dkim_block | length > 0
+    #       - dkim_block is regex_search('[\t ]TXT[\t ]+\(')
+    #       - dkim_quoted_line_count | int >= 2
+    #     fail_msg: "DKIM record is not split as expected in zone file: {{ zone_example_com_file }}"
+    #     success_msg: "DKIM record is split as expected in zone file: {{ zone_example_com_file }}"
+    #   when: false
+    #   vars:
+    #     zone_text: "{{ zone_example_com_slurp.content | b64decode }}"
+    #     dkim_block: "{{ zone_text | regex_search('(?s)(default\._domainkey\.example\.com\..*?; DKIM Record)', '\\1') | default('', true) }}"
+    #     dkim_quoted_line_count: "{{ (dkim_block | regex_findall('\n[ \t]+\"') | length) | int }}"
     ## パッケージのテスト
     - name: Gather package facts
       ansible.builtin.package_facts:
@@ -30,20 +82,3 @@
           - dns_python_import.stdout | length > 0
         fail_msg: "python3-dnspython import failed"
         success_msg: "python3-dnspython import succeeded"
-    ## 出力ディレクトリのテスト
-    - name: Set dns output dir fact
-      ansible.builtin.set_fact:
-        dns_output_dir: "{{ (dns_recode_output_dir | default('./dns_info')) | regex_replace('/+$', '') }}"
-    - name: Stat dns output dir on control node
-      ansible.builtin.stat:
-        path: "{{ dns_output_dir }}"
-      register: dns_output_dir_stat
-      delegate_to: localhost
-      become: false
-    - name: Assert dns output dir exists on control node
-      ansible.builtin.assert:
-        that:
-          - dns_output_dir_stat.stat.exists
-          - dns_output_dir_stat.stat.isdir
-        fail_msg: "DNS output directory not found on control node: {{ dns_output_dir }}"
-        success_msg: "DNS output directory exists on control node: {{ dns_output_dir }}"

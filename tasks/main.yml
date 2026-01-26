@@ -4,6 +4,10 @@
   ansible.builtin.import_tasks:
     file: dependency.yml
   tags: role_dns_dependency
+- name: Initialize deprecated variable aliases
+  ansible.builtin.set_fact:
+    dns_recode_output_dir: "{{ dns_record_output_dir }}"
+  when: dns_recode_output_dir is undefined and dns_record_output_dir is defined
 - name: Gather IP Address
   ansible.builtin.setup:
     gather_subset:
@@ -70,22 +74,22 @@
         dns_dkim_key_table_data: "{{ dict(dns_dkim_domains | zip(dns_dkim_names | zip(dns_dkim_paths))) }}"
 - name: Create output dir
   ansible.builtin.file:
-    path: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}"
+    path: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}"
     state: directory
     mode: "0755"
-  when: dns_recode_output_dir | length > 0
+  when: dns_record_output_dir | length > 0
   become: false
   delegate_to: 127.0.0.1
-- name: Gather DNS recode info
+- name: Gather DNS record info
   ansible.builtin.include_tasks:
-    file: gather_dns_recode.yml
+    file: gather_dns_record.yml
   loop: "{{ dns_domains | dict2items }}"
   loop_control:
     loop_var: gather_dns_domain
     label: gather_dns_domain.key
 - name: Generate zone file
   when:
-    - dns_recode_output_dir | length > 0
+    - dns_record_output_dir | length > 0
     - dns_zones | dict2items | length > 0
   become: false
   delegate_to: 127.0.0.1
@@ -93,7 +97,7 @@
     - name: Generate zone file
       ansible.builtin.template:
         src: zone_file.txt.j2
-        dest: "{{ dns_recode_output_dir.endswith('/') | ternary(dns_recode_output_dir[:-1], dns_recode_output_dir) }}/zone_{{ dns_zone_data.key }}.txt"
+        dest: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/zone_{{ dns_zone_data.key }}.txt"
         mode: "0644"
       loop: "{{ dns_zones | dict2items }}"
       loop_control:

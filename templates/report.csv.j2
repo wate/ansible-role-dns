@@ -1,4 +1,4 @@
-"Type","Recode Name","Recode Type","Recode Value","TTL"
-{% for type, recode_data in dns_domain_recodes.items() %}
-"{{ type }}","{{ recode_data.name }}","{{ recode_data.type }}","{{ recode_data.value }}",{{ recode_data.ttl }}
+"Type","Record Name","Record Type","Record Value","TTL"
+{% for type, record_data in dns_domain_records.items() %}
+"{{ type }}","{{ record_data.name }}","{{ record_data.type }}","{{ record_data.value }}",{{ record_data.ttl }}
 {% endfor %}
