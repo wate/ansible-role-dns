@@ -41,9 +41,9 @@
           - zone_example.co.jp.txt
           - zone_example.com.txt
           - zone_example.net.txt
-          - "{{ dns_opendkim_keys_dir }}/example.com_default.private"
-          - "{{ dns_opendkim_keys_dir }}/subdomain.example.com_default.private"
-          - "{{ dns_opendkim_keys_dir }}/subdomain.example.net_default.private"
+          - "{{ dns_opendkim_keys_dir }}/example.com_default.txt"
+          - "{{ dns_opendkim_keys_dir }}/subdomain.example.com_default.txt"
+          - "{{ dns_opendkim_keys_dir }}/subdomain.example.net_default.txt"
     - name: Find output files on control node
       ansible.builtin.find:
         paths: "{{ dns_output_dir }}"
@@ -65,38 +65,37 @@
           Expected: {{ dns_expected_files_sorted }}
           Actual:   {{ dns_actual_files }}
         success_msg: "Output files match expected list"
-    ## OpenDKIM キーファイルの保存確認テスト
-    - name: Check if OpenDKIM keys directory exists
+    ## OpenDKIM ゾーンファイルサンプルの保存確認テスト
+    - name: Check if OpenDKIM zone file directory exists
       ansible.builtin.stat:
         path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}"
       register: dns_keys_dir_stat
       delegate_to: localhost
       become: false
-    - name: Assert OpenDKIM keys directory exists
+    - name: Assert OpenDKIM zone file directory exists
       ansible.builtin.assert:
         that:
           - dns_keys_dir_stat.stat.exists
           - dns_keys_dir_stat.stat.isdir
-        fail_msg: "OpenDKIM keys directory not found"
-        success_msg: "OpenDKIM keys directory exists"
-    - name: Verify OpenDKIM key files are readable
+        fail_msg: "OpenDKIM zone file directory not found"
+        success_msg: "OpenDKIM zone file directory exists"
+    - name: Verify OpenDKIM zone file samples are readable
       ansible.builtin.stat:
         path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}/{{ item }}"
-      register: dns_key_files_stat
+      register: dns_zone_files_stat
       delegate_to: localhost
       become: false
       loop:
-        - "example.com_default.private"
-        - "subdomain.example.com_default.private"
-        - "subdomain.example.net_default.private"
-    - name: Assert all OpenDKIM key files are readable
+        - "example.com_default.txt"
+        - "subdomain.example.com_default.txt"
+        - "subdomain.example.net_default.txt"
+    - name: Assert all OpenDKIM zone file samples are readable
       ansible.builtin.assert:
         that:
           - item.stat.exists
           - item.stat.isreg
           - item.stat.readable
-        fail_msg: "OpenDKIM key file is missing or not readable: {{ item.invocation.module_args.path }}"
-        success_msg: "OpenDKIM key file is accessible: {{ item.invocation.module_args.path }}"
-      loop: "{{ dns_key_files_stat.results }}"
-      delegate_to: localhost
+        fail_msg: "OpenDKIM zone file sample is missing or not readable: {{ item.invocation.module_args.path }}"
+        success_msg: "OpenDKIM zone file sample is accessible: {{ item.invocation.module_args.path }}"
+      loop: "{{ dns_zone_files_stat.results }}"
       become: false

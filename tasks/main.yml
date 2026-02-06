@@ -77,7 +77,7 @@
         dns_zone_data:
           key: "{{ dns_zone }}"
           value: "{{ dns_zones[dns_zone] }}"
-- name: Save OpenDKIM key files
+- name: Save OpenDKIM zone file samples
   when:
     - dns_save_opendkim_keys | bool
     - dns_dkim_key_items | length > 0
@@ -86,15 +86,15 @@
   vars:
     dns_opendkim_keys_output_dir: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/{{ dns_opendkim_keys_dir }}"
   block:
-    - name: Create OpenDKIM keys output directory
+    - name: Create OpenDKIM zone file output directory
       ansible.builtin.file:
         path: "{{ dns_opendkim_keys_output_dir }}"
         state: directory
         mode: "0755"
-    - name: Save OpenDKIM key files
+    - name: Save OpenDKIM zone file samples
       ansible.builtin.fetch:
-        src: "{{ item.data.key_path }}"
-        dest: "{{ dns_opendkim_keys_output_dir }}/{{ item.domain }}_{{ item.name }}{{ item.data.key_path | regex_search('\\.[^.]+$') | default('', true) }}"
+        src: "{{ item.data.txt_path }}"
+        dest: "{{ dns_opendkim_keys_output_dir }}/{{ item.domain }}_{{ item.name }}.txt"
         flat: true
       loop: "{{ dns_dkim_key_items }}"
       loop_control:
