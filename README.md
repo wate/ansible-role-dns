@@ -1,7 +1,7 @@
 dns
 =================
 
-Gather Sever DNS recodes
+Gather Server DNS records
 
 OS Platform
 -----------------
@@ -21,9 +21,9 @@ Role Variables
 #### `dns_domains`
 
 DNS情報を取得するドメイン  
-収集されたDNSのレコード情報は「dns_recodes」変数にホスト名毎のディクショナリとして格納されます
+収集されたDNSのレコード情報は「dns_records」変数にホスト名毎のディクショナリーとして格納されます
 
-#### `dns_recode_output_dir`
+#### `dns_record_output_dir`
 
 DNSレコード情報の出力先ディレクトリ
 
@@ -64,9 +64,17 @@ https://datatracker.ietf.org/doc/html/rfc6844
 
 TTLの初期値
 
+#### `dns_txt_chunk_size`
+
+TXTレコードの1セグメントあたりの最大長  
+DNS TXTの文字列は1つのダブルクオート内で255オクテットを超えられません。  
+運用上の安全マージンとして200を既定値にします。
+
 ### [vars/main.yml](vars/main.yml)
 
 設定値については[vars/main.yml](vars/main.yml)を参照してください。
+
+#### `dns_records`
 
 #### `dns_recodes`
 
