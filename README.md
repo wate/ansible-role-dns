@@ -70,6 +70,16 @@ TXTレコードの1セグメントあたりの最大長
 DNS TXTの文字列は1つのダブルクオート内で255オクテットを超えられません。  
 運用上の安全マージンとして200を既定値にします。
 
+#### `dns_save_opendkim_keys`
+
+OpenDKIMキーファイルを取得して保存するかどうか  
+注: 有効にする場合、dns_record_output_dir に保存されます
+
+#### `dns_opendkim_keys_dir`
+
+OpenDKIMキーファイルの保存先ディレクトリ名  
+dns_record_output_dir内に作成されます
+
 ### [vars/main.yml](vars/main.yml)
 
 設定値については[vars/main.yml](vars/main.yml)を参照してください。

@@ -4,6 +4,7 @@
   ansible.builtin.apt:
     name:
       - python3-dnspython
+      - python3-publicsuffix2
 - name: Gather IP Address
   ansible.builtin.setup:
     gather_subset:
@@ -92,8 +93,8 @@
         mode: "0755"
     - name: Save OpenDKIM key files
       ansible.builtin.fetch:
-        src: "{{ item.data.path }}"
-        dest: "{{ dns_opendkim_keys_output_dir }}/{{ item.domain }}_{{ item.name }}.txt"
+        src: "{{ item.data.key_path }}"
+        dest: "{{ dns_opendkim_keys_output_dir }}/{{ item.domain }}_{{ item.name }}{{ item.data.key_path | regex_search('\\.[^.]+$') | default('', true) }}"
         flat: true
       loop: "{{ dns_dkim_key_items }}"
       loop_control:

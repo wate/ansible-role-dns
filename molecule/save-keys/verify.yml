@@ -5,10 +5,9 @@
   gather_facts: false
   become: true
   tasks:
-    ## 出力ディレクトリのテスト
     - name: Set dns output dir fact
       ansible.builtin.set_fact:
-        dns_output_dir: "{{ (dns_record_output_dir | default(dns_recode_output_dir | default('./dns_info'))) | regex_replace('/+$', '') }}"
+        dns_output_dir: "{{ (dns_record_output_dir | regex_replace('/+$', '')) }}"
     - name: Stat dns output dir on control node
       ansible.builtin.stat:
         path: "{{ dns_output_dir }}"
@@ -42,16 +41,20 @@
           - zone_example.co.jp.txt
           - zone_example.com.txt
           - zone_example.net.txt
+          - "{{ dns_opendkim_keys_dir }}/example.com_default.private"
+          - "{{ dns_opendkim_keys_dir }}/subdomain.example.com_default.private"
+          - "{{ dns_opendkim_keys_dir }}/subdomain.example.net_default.private"
     - name: Find output files on control node
       ansible.builtin.find:
         paths: "{{ dns_output_dir }}"
         file_type: file
+        recurse: true
       register: dns_output_files
       delegate_to: localhost
       become: false
     - name: Set actual output file list
       ansible.builtin.set_fact:
-        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('basename') | list | sort }}"
+        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('regex_replace', '^' + dns_output_dir + '/', '') | list | sort }}"
         dns_expected_files_sorted: "{{ dns_expected_files | list | sort }}"
     - name: Assert output files are an exact match
       ansible.builtin.assert:

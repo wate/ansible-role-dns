@@ -17,6 +17,12 @@ try:
 except ImportError:
     HAS_DNSPYTHON = False
 
+try:
+    import publicsuffix2
+    HAS_PUBLICSUFFIX = True
+except ImportError:
+    HAS_PUBLICSUFFIX = False
+
 
 class DNSRecordCollector:
     """Collect DNS records and generate zone file data"""
@@ -258,7 +264,8 @@ class DNSRecordCollector:
 
                         keytable_data[domain][selector] = {
                             'name': key_spec.split('.')[0],  # selector
-                            'path': key_path.replace('.private', '.txt')
+                            'key_path': key_path,
+                            'txt_path': key_path.replace('.private', '.txt')
                         }
         except (IOError, OSError) as e:
             self.module.fail_json(msg=f"Failed to read KeyTable: {str(e)}")
@@ -267,8 +274,11 @@ class DNSRecordCollector:
 
     def _get_registrable_domain(self, domain):
         """Get registrable domain (using simple logic)"""
-        # For now, assume last part is registrable
-        # In production, use dnspython or similar
+        # Prefer publicsuffix list when available
+        if HAS_PUBLICSUFFIX:
+            registrable = publicsuffix2.get_sld(domain)
+            if registrable:
+                return registrable
         parts = domain.split('.')
         if len(parts) >= 2:
             return '.'.join(parts[-2:])
@@ -333,14 +343,14 @@ class DNSRecordCollector:
 
         records = {}
         for selector, key_data in self.dkim_keytable_data[domain].items():
-            dkim_name = key_data['name']
-            key_path = key_data['path']
+            txt_path = key_data['txt_path']
+            dkim_name = f"{selector}._domainkey"
 
             # Try to read zone file
             dkim_value = None
-            if os.path.exists(key_path):
+            if os.path.exists(txt_path):
                 try:
-                    with open(key_path, 'r') as f:
+                    with open(txt_path, 'r') as f:
                         content = f.read()
                         # Extract public key from zone file
                         dkim_value = self._parse_dkim_zone_file(content)
