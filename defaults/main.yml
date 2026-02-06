@@ -167,3 +167,15 @@ dns_ttl_default: 3600
 ## 運用上の安全マージンとして200を既定値にします。
 ## ----------
 dns_txt_chunk_size: 200
+
+## ----------
+## OpenDKIMキーファイルを取得して保存するかどうか
+## 注: 有効にする場合、dns_record_output_dir に保存されます
+## ----------
+dns_save_opendkim_keys: false
+
+## ----------
+## OpenDKIMキーファイルの保存先ディレクトリ名
+## dns_record_output_dir内に作成されます
+## ----------
+dns_opendkim_keys_dir: opendkim_keys

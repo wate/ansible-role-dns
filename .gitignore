@@ -6,6 +6,9 @@
 *.retry
 .ansible
 
+### Python ###
+__pycache__/
+
 ### direnv ###
 .direnv
 .envrc
