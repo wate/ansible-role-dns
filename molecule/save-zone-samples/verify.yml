@@ -41,9 +41,9 @@
           - zone_example.co.jp.txt
           - zone_example.com.txt
           - zone_example.net.txt
-          - "{{ dns_opendkim_keys_dir }}/example.com_default.txt"
-          - "{{ dns_opendkim_keys_dir }}/subdomain.example.com_default.txt"
-          - "{{ dns_opendkim_keys_dir }}/subdomain.example.net_default.txt"
+          - "{{ dns_zone_samples_dir }}/example.com_default.txt"
+          - "{{ dns_zone_samples_dir }}/subdomain.example.com_default.txt"
+          - "{{ dns_zone_samples_dir }}/subdomain.example.net_default.txt"
     - name: Find output files on control node
       ansible.builtin.find:
         paths: "{{ dns_output_dir }}"
@@ -54,7 +54,7 @@
       become: false
     - name: Set actual output file list
       ansible.builtin.set_fact:
-        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('regex_replace', '^' + dns_output_dir + '/', '') | list | sort }}"
+        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('regex_replace', '^' + (dns_output_dir | regex_escape) + '/', '') | list | sort }}"
         dns_expected_files_sorted: "{{ dns_expected_files | list | sort }}"
     - name: Assert output files are an exact match
       ansible.builtin.assert:
@@ -68,7 +68,7 @@
     ## OpenDKIM ゾーンファイルサンプルの保存確認テスト
     - name: Check if OpenDKIM zone file directory exists
       ansible.builtin.stat:
-        path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}"
+        path: "{{ dns_output_dir }}/{{ dns_zone_samples_dir }}"
       register: dns_keys_dir_stat
       delegate_to: localhost
       become: false
@@ -81,7 +81,7 @@
         success_msg: "OpenDKIM zone file directory exists"
     - name: Verify OpenDKIM zone file samples are readable
       ansible.builtin.stat:
-        path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}/{{ item }}"
+        path: "{{ dns_output_dir }}/{{ dns_zone_samples_dir }}/{{ item }}"
       register: dns_zone_files_stat
       delegate_to: localhost
       become: false

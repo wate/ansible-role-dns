@@ -262,10 +262,22 @@ class DNSRecordCollector:
                         if domain not in keytable_data:
                             keytable_data[domain] = {}
 
+                        txt_path = key_path.replace('.private', '.txt')
+                        txt_content = None
+
+                        # Read zone file content
+                        if os.path.exists(txt_path):
+                            try:
+                                with open(txt_path, 'r') as txt_file:
+                                    txt_content = txt_file.read()
+                            except (IOError, OSError):
+                                pass
+
                         keytable_data[domain][selector] = {
                             'name': key_spec.split('.')[0],  # selector
                             'key_path': key_path,
-                            'txt_path': key_path.replace('.private', '.txt')
+                            'txt_path': txt_path,
+                            'txt_content': txt_content
                         }
         except (IOError, OSError) as e:
             self.module.fail_json(msg=f"Failed to read KeyTable: {str(e)}")

@@ -169,13 +169,13 @@ dns_ttl_default: 3600
 dns_txt_chunk_size: 200
 
 ## ----------
-## OpenDKIMキーファイルを取得して保存するかどうか
+## OpenDKIMゾーンファイルサンプルを保存するかどうか
 ## 注: 有効にする場合、dns_record_output_dir に保存されます
 ## ----------
-dns_save_opendkim_keys: false
+dns_save_zone_samples: false
 
 ## ----------
-## OpenDKIMキーファイルの保存先ディレクトリ名
+## ゾーンファイルサンプルの保存先ディレクトリ名
 ## dns_record_output_dir内に作成されます
 ## ----------
-dns_opendkim_keys_dir: opendkim_keys
+dns_zone_samples_dir: zone_samples

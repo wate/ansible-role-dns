@@ -79,23 +79,26 @@
           value: "{{ dns_zones[dns_zone] }}"
 - name: Save OpenDKIM zone file samples
   when:
-    - dns_save_opendkim_keys | bool
+    - dns_save_zone_samples | bool
     - dns_dkim_key_items | length > 0
-  become: false
-  delegate_to: 127.0.0.1
   vars:
-    dns_opendkim_keys_output_dir: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/{{ dns_opendkim_keys_dir }}"
+    dns_zone_samples_output_dir: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/{{ dns_zone_samples_dir }}"
   block:
     - name: Create OpenDKIM zone file output directory
       ansible.builtin.file:
-        path: "{{ dns_opendkim_keys_output_dir }}"
+        path: "{{ dns_zone_samples_output_dir }}"
         state: directory
         mode: "0755"
+      become: false
+      delegate_to: 127.0.0.1
     - name: Save OpenDKIM zone file samples
-      ansible.builtin.fetch:
-        src: "{{ item.data.txt_path }}"
-        dest: "{{ dns_opendkim_keys_output_dir }}/{{ item.domain }}_{{ item.name }}.txt"
-        flat: true
+      ansible.builtin.copy:
+        content: "{{ item.data.txt_content }}"
+        dest: "{{ dns_zone_samples_output_dir }}/{{ item.domain }}_{{ item.name }}.txt"
+        mode: "0644"
       loop: "{{ dns_dkim_key_items }}"
       loop_control:
         label: "{{ item.domain }}/{{ item.name }}"
+      when: item.data.txt_content is not none
+      become: false
+      delegate_to: 127.0.0.1

@@ -33,4 +33,5 @@ dns_domains:
 
 dns_record_output_dir: ./output
 
-dns_save_opendkim_keys: true
+dns_save_zone_samples: true
+dns_zone_samples_dir: zone_samples
