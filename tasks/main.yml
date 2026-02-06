@@ -1,105 +1,104 @@
 # code: language=ansible
 ---
-- name: Import dependency task
-  ansible.builtin.import_tasks:
-    file: dependency.yml
-  tags: role_dns_dependency
-- name: Initialize deprecated variable aliases
-  ansible.builtin.set_fact:
-    dns_recode_output_dir: "{{ dns_record_output_dir }}"
-  when: dns_recode_output_dir is undefined and dns_record_output_dir is defined
+- name: Install dependency packages
+  ansible.builtin.apt:
+    name:
+      - python3-dnspython
+      - python3-publicsuffix2
 - name: Gather IP Address
   ansible.builtin.setup:
     gather_subset:
       - default_ipv4
       - default_ipv6
-- name: Initialize tmp_domains variable
+- name: Collect DNS records
+  dns_record_info:
+    domains: "{{ dns_domains }}"
+    server_ipv4: "{{ ansible_facts.default_ipv4.address | default(omit) }}"
+    server_ipv6: "{{ ansible_facts.default_ipv6.address | default(omit) }}"
+    opendkim_keytable_path: "{{ dns_opendkim_keytable_path }}"
+    spf_default: "{{ dns_spf_default }}"
+    dkim_default: "{{ dns_dkim_default }}"
+    dmarc_default: "{{ dns_dmarc_default }}"
+    caa_default: "{{ dns_caa_default }}"
+    ttl_default: "{{ dns_ttl_default }}"
+  register: dns_record_result
+  tags: role_dns_collect
+- name: Set DNS record variables
   ansible.builtin.set_fact:
-    tmp_domains: []
-- name: Pickup registrable domain
-  ansible.builtin.set_fact:
-    tmp_domains: "{{ (tmp_domains | default([])) + [tmp_dns_domain.key | community.dns.get_registrable_domain] }}"
-  loop: "{{ dns_domains | dict2items }}"
-  loop_control:
-    loop_var: tmp_dns_domain
-- name: Unique filter registrable domain variable
-  ansible.builtin.set_fact:
-    tmp_domains: "{{ tmp_domains | default([]) | unique }}"
-- name: Add registrable domain to dns_domains variable
-  ansible.builtin.set_fact:
-    dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_option}) }}"
-  when: dns_domains[tmp_domain] is undefined
-  loop: "{{ tmp_domains }}"
-  loop_control:
-    loop_var: tmp_domain
-- name: Append CNAME domains
-  ansible.builtin.set_fact:
-    dns_domains: "{{ dns_domains | combine({tmp_domain: dns_auto_append_cname_option}) }}"
-  when: dns_domains[tmp_domain] is undefined
+    dns_records: "{{ dns_record_result.records }}"
+    dns_zones: "{{ dns_record_result.zones }}"
+    dns_dkim_key_table_data: "{{ dns_record_result.dkim_keytable_data }}"
+    dns_dkim_key_items: "{{ dns_record_result.dkim_key_items }}"
+  tags: role_dns_set_vars
+- name: Output DNS reports and zone files
+  when: dns_zones | length > 0
+  become: false
+  delegate_to: 127.0.0.1
   vars:
-    tmp_domain: "{{ dns_name.1 + '.' + dns_name.0.key }}"
-    dns_auto_append_cname_option: "{{ dns_auto_append_option | combine({'cname': dns_name.0.key | community.dns.remove_registrable_domain | default('@', true)}) }}"
-  loop: "{{ query('ansible.builtin.subelements', (dns_domains | dict2items), 'value.cnames', {'skip_missing': True}) }}"
-  loop_control:
-    loop_var: dns_name
-- name: Initialize dkim key table
-  ansible.builtin.set_fact:
-    dns_dkim_key_table_data: {}
-- name: Get key table content
-  ansible.builtin.command:
-    cmd: cat {{ dns_opendkim_keytable_path }}
-    removes: "{{ dns_opendkim_keytable_path }}"
-  register: cat_key_table_result
-  changed_when: false
-- name: Set dns_dkim_key_table_data variable
-  when: cat_key_table_result.stdout_lines | default([]) | length > 0
+    dns_output_dir: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}"
   block:
-    - name: Set tmp variables
-      ansible.builtin.set_fact:
-        dns_tmp_key_tables: "{{ cat_key_table_result.stdout_lines | map('split', ' ') }}"
-        dns_dkim_domains: []
-        dns_dkim_names: []
-        dns_dkim_selectors: []
-        dns_dkim_paths: []
-    - name: Set dkim dns names
-      ansible.builtin.set_fact:
-        dns_dkim_domains: "{{ dns_dkim_domains + [dns_tmp_key_table[1].split(':')[0]] }}"
-        dns_dkim_names: "{{ dns_dkim_names + [dns_tmp_key_table[0] | community.dns.remove_registrable_domain] }}"
-        dns_dkim_paths: "{{ dns_dkim_paths + [dns_tmp_key_table[1].split(':')[2] | replace('.private', '.txt')] }}"
-      loop: "{{ dns_tmp_key_tables }}"
+    - name: Create output dir
+      ansible.builtin.file:
+        path: "{{ dns_output_dir }}"
+        state: directory
+        mode: "0755"
+    - name: Output CSV report file
+      ansible.builtin.template:
+        src: report.csv.j2
+        dest: "{{ dns_output_dir }}/{{ dns_domain }}.csv"
+        mode: "0644"
+      loop: "{{ dns_records.keys() | list }}"
       loop_control:
-        loop_var: dns_tmp_key_table
-    - name: Set dns_dkim_key_table variable
-      ansible.builtin.set_fact:
-        dns_dkim_key_table_data: "{{ dict(dns_dkim_domains | zip(dns_dkim_names | zip(dns_dkim_paths))) }}"
-- name: Create output dir
-  ansible.builtin.file:
-    path: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}"
-    state: directory
-    mode: "0755"
-  when: dns_record_output_dir | length > 0
-  become: false
-  delegate_to: 127.0.0.1
-- name: Gather DNS record info
-  ansible.builtin.include_tasks:
-    file: gather_dns_record.yml
-  loop: "{{ dns_domains | dict2items }}"
-  loop_control:
-    loop_var: gather_dns_domain
-    label: gather_dns_domain.key
-- name: Generate zone file
-  when:
-    - dns_record_output_dir | length > 0
-    - dns_zones | dict2items | length > 0
-  become: false
-  delegate_to: 127.0.0.1
-  block:
+        loop_var: dns_domain
+        label: "{{ dns_domain }}.csv"
+      vars:
+        dns_domain_records: "{{ dns_records[dns_domain] }}"
+    - name: Output Markdown report file
+      ansible.builtin.template:
+        src: report.md.j2
+        dest: "{{ dns_output_dir }}/{{ dns_domain }}.md"
+        mode: "0644"
+      loop: "{{ dns_records.keys() | list }}"
+      loop_control:
+        loop_var: dns_domain
+        label: "{{ dns_domain }}.md"
+      vars:
+        dns_domain_records: "{{ dns_records[dns_domain] }}"
     - name: Generate zone file
       ansible.builtin.template:
         src: zone_file.txt.j2
-        dest: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/zone_{{ dns_zone_data.key }}.txt"
+        dest: "{{ dns_output_dir }}/zone_{{ dns_zone }}.txt"
         mode: "0644"
-      loop: "{{ dns_zones | dict2items }}"
+      loop: "{{ dns_zones.keys() | list }}"
       loop_control:
-        loop_var: dns_zone_data
-        label: "{{ dns_zone_data.key }}"
+        loop_var: dns_zone
+        label: "zone_{{ dns_zone }}.txt"
+      vars:
+        dns_zone_data:
+          key: "{{ dns_zone }}"
+          value: "{{ dns_zones[dns_zone] }}"
+- name: Save OpenDKIM zone file samples
+  when:
+    - dns_save_zone_samples | bool
+    - dns_dkim_key_items | length > 0
+  vars:
+    dns_zone_samples_output_dir: "{{ dns_record_output_dir.endswith('/') | ternary(dns_record_output_dir[:-1], dns_record_output_dir) }}/{{ dns_zone_samples_dir }}"
+  block:
+    - name: Create OpenDKIM zone file output directory
+      ansible.builtin.file:
+        path: "{{ dns_zone_samples_output_dir }}"
+        state: directory
+        mode: "0755"
+      become: false
+      delegate_to: 127.0.0.1
+    - name: Save OpenDKIM zone file samples
+      ansible.builtin.copy:
+        content: "{{ item.data.txt_content }}"
+        dest: "{{ dns_zone_samples_output_dir }}/{{ item.domain }}_{{ item.name }}.txt"
+        mode: "0644"
+      loop: "{{ dns_dkim_key_items }}"
+      loop_control:
+        label: "{{ item.domain }}/{{ item.name }}"
+      when: item.data.txt_content is not none
+      become: false
+      delegate_to: 127.0.0.1

@@ -1,10 +1,35 @@
 # yaml-language-server: $schema=https://taskfile.dev/schema.json
 version: '3'
 tasks:
+  notify:
+    internal: true
+    silent: true
+    cmds:
+      - afplay /System/Library/Sounds/Glass.aiff
+  notify:all:
+    internal: true
+    silent: true
+    cmds:
+      - afplay /System/Library/Sounds/Hero.aiff
   default:
     desc: Run Molecule tests for default scenario
-    cmd: molecule test
+    cmds:
+      - cmd: molecule test
+      - task: notify
+  large-key:
+    desc: Run Molecule tests for large-key scenario (2048-bit RSA)
+    cmds:
+      - cmd: molecule test -s large-key
+      - task: notify
+  save-zone-samples:
+    desc: Run Molecule tests for save-zone-samples scenario
+    cmds:
+      - cmd: molecule test -s save-zone-samples
+      - task: notify
   all:
     desc: Run Molecule tests for all scenarios (sequential)
     cmds:
       - task: default
+      - task: large-key
+      - task: save-zone-samples
+      - task: notify:all

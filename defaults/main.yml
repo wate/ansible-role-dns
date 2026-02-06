@@ -38,7 +38,7 @@ dns_domains: {}
 ## ----------
 ## DNSレコード情報の出力先ディレクトリ
 ## ----------
-dns_record_output_dir: "{{ dns_recode_output_dir | default('./dns_info') }}"
+dns_record_output_dir: ./dns_info
 
 ## ----------
 ## SPFレコードに設定する初期値
@@ -55,7 +55,7 @@ dns_spf_default:
 ## ----------
 ## OpenDKIMのKeyTableファイルのパス
 ## ----------
-dns_opendkim_keytable_path: "{{ opendkim_table_config_dir | default('/etc/opendkim') }}/KeyTable"
+dns_opendkim_keytable_path: /etc/opendkim/KeyTable
 
 ## ----------
 ## DKIMレコードに設定する初期値
@@ -167,3 +167,15 @@ dns_ttl_default: 3600
 ## 運用上の安全マージンとして200を既定値にします。
 ## ----------
 dns_txt_chunk_size: 200
+
+## ----------
+## OpenDKIMゾーンファイルサンプルを保存するかどうか
+## 注: 有効にする場合、dns_record_output_dir に保存されます
+## ----------
+dns_save_zone_samples: false
+
+## ----------
+## ゾーンファイルサンプルの保存先ディレクトリ名
+## dns_record_output_dir内に作成されます
+## ----------
+dns_zone_samples_dir: zone_samples

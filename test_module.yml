@@ -1,0 +1,31 @@
+---
+- name: Test dns_record_info module
+  hosts: localhost
+  gather_facts: false
+  vars:
+    dns_domains:
+      example.com: null
+      www.example.com: null
+  tasks:
+    - name: Test module
+      dns_record_info:
+        domains: "{{ dns_domains }}"
+        server_ipv4: "192.0.2.1"
+        server_ipv6: null
+        opendkim_keytable_path: /etc/opendkim/KeyTable
+        spf_default:
+          other_values: []
+          all_qualifier: "~"
+        dkim_default: {}
+        dmarc_default:
+          p: quarantine
+          pct: 100
+        caa_default:
+          flag: 0
+          tag: issue
+          ca_domain: letsencrypt.org
+        ttl_default: 3600
+      register: result
+    - name: Display results
+      ansible.builtin.debug:
+        msg: "{{ result }}"

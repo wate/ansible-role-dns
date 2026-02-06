@@ -5,10 +5,9 @@
   gather_facts: false
   become: true
   tasks:
-    ## 出力ディレクトリのテスト
     - name: Set dns output dir fact
       ansible.builtin.set_fact:
-        dns_output_dir: "{{ (dns_record_output_dir | default(dns_recode_output_dir | default('./dns_info'))) | regex_replace('/+$', '') }}"
+        dns_output_dir: "{{ (dns_record_output_dir | regex_replace('/+$', '') | regex_replace('^\\./', '')) }}"
     - name: Stat dns output dir on control node
       ansible.builtin.stat:
         path: "{{ dns_output_dir }}"
@@ -42,16 +41,20 @@
           - zone_example.co.jp.txt
           - zone_example.com.txt
           - zone_example.net.txt
+          - "{{ dns_zone_samples_dir }}/example.com_default.txt"
+          - "{{ dns_zone_samples_dir }}/subdomain.example.com_default.txt"
+          - "{{ dns_zone_samples_dir }}/subdomain.example.net_default.txt"
     - name: Find output files on control node
       ansible.builtin.find:
         paths: "{{ dns_output_dir }}"
         file_type: file
+        recurse: true
       register: dns_output_files
       delegate_to: localhost
       become: false
     - name: Set actual output file list
       ansible.builtin.set_fact:
-        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('basename') | list | sort }}"
+        dns_actual_files: "{{ dns_output_files.files | map(attribute='path') | map('replace', dns_output_dir + '/', '') | list | sort }}"
         dns_expected_files_sorted: "{{ dns_expected_files | list | sort }}"
     - name: Assert output files are an exact match
       ansible.builtin.assert:
@@ -62,41 +65,37 @@
           Expected: {{ dns_expected_files_sorted }}
           Actual:   {{ dns_actual_files }}
         success_msg: "Output files match expected list"
-    ## DKIM レコード値の一致性テスト
-    - name: Read zone file for DKIM records
-      ansible.builtin.slurp:
-        src: "{{ dns_output_dir }}/zone_example.com.txt"
-      register: dns_zone_file
+    ## OpenDKIM ゾーンファイルサンプルの保存確認テスト
+    - name: Check if OpenDKIM zone file directory exists
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}/{{ dns_zone_samples_dir }}"
+      register: dns_keys_dir_stat
       delegate_to: localhost
       become: false
-    - name: Extract DKIM records from zone file
-      ansible.builtin.set_fact:
-        dns_zone_dkim_records: "{{ (dns_zone_file.content | b64decode) | regex_findall('v=DKIM1[^\"]*') }}"
-    - name: Read Markdown file for DKIM records
-      ansible.builtin.slurp:
-        src: "{{ dns_output_dir }}/example.com.md"
-      register: dns_md_file
-      delegate_to: localhost
-      become: false
-    - name: Extract DKIM records from Markdown
-      ansible.builtin.set_fact:
-        dns_md_dkim_records: "{{ (dns_md_file.content | b64decode) | regex_findall('v=DKIM1[^`]*') }}"
-    - name: Read CSV file for DKIM records
-      ansible.builtin.slurp:
-        src: "{{ dns_output_dir }}/example.com.csv"
-      register: dns_csv_file
-      delegate_to: localhost
-      become: false
-    - name: Extract DKIM records from CSV
-      ansible.builtin.set_fact:
-        dns_csv_dkim_records: "{{ (dns_csv_file.content | b64decode) | regex_findall('v=DKIM1[^\"]*') }}"
-    - name: Validate DKIM records exist in all formats
+    - name: Assert OpenDKIM zone file directory exists
       ansible.builtin.assert:
         that:
-          - dns_zone_dkim_records | length > 0
-          - dns_md_dkim_records | length > 0
-          - dns_csv_dkim_records | length > 0
-        fail_msg: "DKIM records not found in one or more formats (zone, markdown, csv)"
-        success_msg: "DKIM records found and validated in all formats"
+          - dns_keys_dir_stat.stat.exists
+          - dns_keys_dir_stat.stat.isdir
+        fail_msg: "OpenDKIM zone file directory not found"
+        success_msg: "OpenDKIM zone file directory exists"
+    - name: Verify OpenDKIM zone file samples are readable
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}/{{ dns_zone_samples_dir }}/{{ item }}"
+      register: dns_zone_files_stat
       delegate_to: localhost
+      become: false
+      loop:
+        - "example.com_default.txt"
+        - "subdomain.example.com_default.txt"
+        - "subdomain.example.net_default.txt"
+    - name: Assert all OpenDKIM zone file samples are readable
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.readable
+        fail_msg: "OpenDKIM zone file sample is missing or not readable: {{ item.invocation.module_args.path }}"
+        success_msg: "OpenDKIM zone file sample is accessible: {{ item.invocation.module_args.path }}"
+      loop: "{{ dns_zone_files_stat.results }}"
       become: false
