@@ -65,3 +65,38 @@
           Expected: {{ dns_expected_files_sorted }}
           Actual:   {{ dns_actual_files }}
         success_msg: "Output files match expected list"
+    ## OpenDKIM キーファイルの保存確認テスト
+    - name: Check if OpenDKIM keys directory exists
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}"
+      register: dns_keys_dir_stat
+      delegate_to: localhost
+      become: false
+    - name: Assert OpenDKIM keys directory exists
+      ansible.builtin.assert:
+        that:
+          - dns_keys_dir_stat.stat.exists
+          - dns_keys_dir_stat.stat.isdir
+        fail_msg: "OpenDKIM keys directory not found"
+        success_msg: "OpenDKIM keys directory exists"
+    - name: Verify OpenDKIM key files are readable
+      ansible.builtin.stat:
+        path: "{{ dns_output_dir }}/{{ dns_opendkim_keys_dir }}/{{ item }}"
+      register: dns_key_files_stat
+      delegate_to: localhost
+      become: false
+      loop:
+        - "example.com_default.private"
+        - "subdomain.example.com_default.private"
+        - "subdomain.example.net_default.private"
+    - name: Assert all OpenDKIM key files are readable
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.readable
+        fail_msg: "OpenDKIM key file is missing or not readable: {{ item.invocation.module_args.path }}"
+        success_msg: "OpenDKIM key file is accessible: {{ item.invocation.module_args.path }}"
+      loop: "{{ dns_key_files_stat.results }}"
+      delegate_to: localhost
+      become: false

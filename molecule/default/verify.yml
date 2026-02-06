@@ -62,3 +62,41 @@
           Expected: {{ dns_expected_files_sorted }}
           Actual:   {{ dns_actual_files }}
         success_msg: "Output files match expected list"
+    ## DKIM レコード値の一致性テスト
+    - name: Read zone file for DKIM records
+      ansible.builtin.slurp:
+        src: "{{ dns_output_dir }}/zone_example.com.txt"
+      register: dns_zone_file
+      delegate_to: localhost
+      become: false
+    - name: Extract DKIM records from zone file
+      ansible.builtin.set_fact:
+        dns_zone_dkim_records: "{{ (dns_zone_file.content | b64decode) | regex_findall('v=DKIM1[^\"]*') }}"
+    - name: Read Markdown file for DKIM records
+      ansible.builtin.slurp:
+        src: "{{ dns_output_dir }}/example.com.md"
+      register: dns_md_file
+      delegate_to: localhost
+      become: false
+    - name: Extract DKIM records from Markdown
+      ansible.builtin.set_fact:
+        dns_md_dkim_records: "{{ (dns_md_file.content | b64decode) | regex_findall('v=DKIM1[^`]*') }}"
+    - name: Read CSV file for DKIM records
+      ansible.builtin.slurp:
+        src: "{{ dns_output_dir }}/example.com.csv"
+      register: dns_csv_file
+      delegate_to: localhost
+      become: false
+    - name: Extract DKIM records from CSV
+      ansible.builtin.set_fact:
+        dns_csv_dkim_records: "{{ (dns_csv_file.content | b64decode) | regex_findall('v=DKIM1[^\"]*') }}"
+    - name: Validate DKIM records exist in all formats
+      ansible.builtin.assert:
+        that:
+          - dns_zone_dkim_records | length > 0
+          - dns_md_dkim_records | length > 0
+          - dns_csv_dkim_records | length > 0
+        fail_msg: "DKIM records not found in one or more formats (zone, markdown, csv)"
+        success_msg: "DKIM records found and validated in all formats"
+      delegate_to: localhost
+      become: false
